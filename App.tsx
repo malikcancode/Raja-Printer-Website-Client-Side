@@ -33,6 +33,7 @@ const Login = lazy(() =>
 const Register = lazy(() =>
   import("./pages/Auth").then((module) => ({ default: module.Register })),
 );
+const Favorites = lazy(() => import("./pages/Favorites"));
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/Admin/AdminProducts"));
 const AdminOrders = lazy(() => import("./pages/Admin/AdminOrders"));
@@ -149,6 +150,7 @@ const AppRoutes = () => {
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/favorites" element={<Favorites />} />
         </Route>
 
         {/* Admin Routes */}

@@ -6,13 +6,17 @@ import {
   X,
   Image as ImageIcon,
   Upload,
+  PlusCircle,
+  MinusCircle,
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { CATEGORIES } from "../../constants";
-import { productAPI, Product } from "../../apis/product";
+import { productAPI, Product, ProductSpecification } from "../../apis/product";
+import { useShop } from "../../context/ShopContext";
 
 const AdminProducts: React.FC = () => {
+  const { refreshProducts } = useShop();
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -25,6 +29,8 @@ const AdminProducts: React.FC = () => {
     productId: string;
     productName: string;
   }>({ isOpen: false, productId: "", productName: "" });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const initialFormState: Partial<Product> = {
     name: "",
@@ -34,9 +40,16 @@ const AdminProducts: React.FC = () => {
     image: "",
     rating: 5,
     tags: [],
+    stock: 10,
+    weight: 1,
+    description: "",
+    specifications: [],
   };
 
   const [formData, setFormData] = useState<Partial<Product>>(initialFormState);
+  const [specifications, setSpecifications] = useState<ProductSpecification[]>(
+    [],
+  );
 
   // Fetch products on component mount
   useEffect(() => {
@@ -64,12 +77,14 @@ const AdminProducts: React.FC = () => {
       setFormData(product);
       setImagePreview(product.image);
       setUploadMethod("url");
+      setSpecifications(product.specifications || []);
     } else {
       setEditingProduct(null);
       setFormData(initialFormState);
       setImagePreview("");
       setSelectedFile(null);
       setUploadMethod("file");
+      setSpecifications([]);
     }
     setIsModalOpen(true);
   };
@@ -100,6 +115,7 @@ const AdminProducts: React.FC = () => {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       if (editingProduct) {
         // Update existing product
@@ -121,6 +137,17 @@ const AdminProducts: React.FC = () => {
             formDataToSend.append("rating", String(formData.rating));
           if (formData.tags)
             formDataToSend.append("tags", formData.tags.join(","));
+          if (formData.stock !== undefined)
+            formDataToSend.append("stock", String(formData.stock));
+          if (formData.weight !== undefined)
+            formDataToSend.append("weight", String(formData.weight));
+          if (formData.description)
+            formDataToSend.append("description", formData.description);
+          if (specifications.length > 0)
+            formDataToSend.append(
+              "specifications",
+              JSON.stringify(specifications),
+            );
           formDataToSend.append("image", selectedFile);
 
           const response = await productAPI.update(id, formDataToSend);
@@ -129,16 +156,21 @@ const AdminProducts: React.FC = () => {
               icon: "✅",
             });
             fetchProducts();
+            refreshProducts();
             setIsModalOpen(false);
           }
         } else {
           // Update with URL
-          const response = await productAPI.updateWithUrl(id, formData);
+          const response = await productAPI.updateWithUrl(id, {
+            ...formData,
+            specifications,
+          });
           if (response.success) {
             toast.success("Product updated successfully!", {
               icon: "✅",
             });
             fetchProducts();
+            refreshProducts();
             setIsModalOpen(false);
           }
         }
@@ -159,6 +191,17 @@ const AdminProducts: React.FC = () => {
             formDataToSend.append("rating", String(formData.rating));
           if (formData.tags)
             formDataToSend.append("tags", formData.tags.join(","));
+          if (formData.stock !== undefined)
+            formDataToSend.append("stock", String(formData.stock));
+          if (formData.weight !== undefined)
+            formDataToSend.append("weight", String(formData.weight));
+          if (formData.description)
+            formDataToSend.append("description", formData.description);
+          if (specifications.length > 0)
+            formDataToSend.append(
+              "specifications",
+              JSON.stringify(specifications),
+            );
           formDataToSend.append("image", selectedFile);
 
           const response = await productAPI.create(formDataToSend);
@@ -167,16 +210,21 @@ const AdminProducts: React.FC = () => {
               icon: "🎉",
             });
             fetchProducts();
+            refreshProducts();
             setIsModalOpen(false);
           }
         } else {
           // Create with URL
-          const response = await productAPI.createWithUrl(formData);
+          const response = await productAPI.createWithUrl({
+            ...formData,
+            specifications,
+          });
           if (response.success) {
             toast.success("Product created successfully!", {
               icon: "🎉",
             });
             fetchProducts();
+            refreshProducts();
             setIsModalOpen(false);
           }
         }
@@ -186,10 +234,13 @@ const AdminProducts: React.FC = () => {
       toast.error(error.response?.data?.message || "Failed to save product", {
         icon: "❌",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleDelete = async (id: string) => {
+    setIsDeleting(true);
     try {
       const response = await productAPI.delete(id);
       if (response.success) {
@@ -197,11 +248,14 @@ const AdminProducts: React.FC = () => {
           icon: "🗑️",
         });
         fetchProducts();
+        refreshProducts();
         setDeleteConfirm({ isOpen: false, productId: "", productName: "" });
       }
     } catch (error: any) {
       console.error("Error deleting product:", error);
       toast.error(error.response?.data?.message || "Failed to delete product");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -272,6 +326,7 @@ const AdminProducts: React.FC = () => {
                   <th className="p-4">Name</th>
                   <th className="p-4">Category</th>
                   <th className="p-4">Price</th>
+                  <th className="p-4">Stock</th>
                   <th className="p-4 text-right">Actions</th>
                 </tr>
               </thead>
@@ -298,6 +353,19 @@ const AdminProducts: React.FC = () => {
                     </td>
                     <td className="p-4 text-sm font-mono text-blue-600">
                       PKR {product.price.toLocaleString()}
+                    </td>
+                    <td className="p-4">
+                      <span
+                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold ${
+                          (product.stock || 0) === 0
+                            ? "bg-red-100 text-red-700"
+                            : (product.stock || 0) <= 5
+                              ? "bg-yellow-100 text-yellow-700"
+                              : "bg-green-100 text-green-700"
+                        }`}
+                      >
+                        {product.stock || 0}
+                      </span>
                     </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
@@ -387,6 +455,45 @@ const AdminProducts: React.FC = () => {
                       setFormData({
                         ...formData,
                         originalPrice: Number(e.target.value),
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
+                    Stock Quantity *
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={formData.stock || 0}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        stock: Number(e.target.value),
+                      })
+                    }
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
+                    Weight (kg)
+                  </label>
+                  <input
+                    type="number"
+                    min="0.1"
+                    step="0.1"
+                    value={formData.weight || 1}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        weight: Number(e.target.value),
                       })
                     }
                     className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
@@ -512,19 +619,132 @@ const AdminProducts: React.FC = () => {
                 />
               </div>
 
+              {/* Description */}
+              <div>
+                <label className="block text-sm font-bold text-gray-700 mb-1">
+                  Description (Optional)
+                </label>
+                <textarea
+                  value={formData.description || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
+                  placeholder="Enter product description..."
+                  rows={3}
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none resize-none"
+                />
+              </div>
+
+              {/* Specifications */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-bold text-gray-700">
+                    Specifications (Optional)
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setSpecifications([
+                        ...specifications,
+                        { key: "", value: "" },
+                      ])
+                    }
+                    className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+                  >
+                    <PlusCircle size={14} /> Add Spec
+                  </button>
+                </div>
+                {specifications.length > 0 ? (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    {specifications.map((spec, index) => (
+                      <div key={index} className="flex gap-2 items-center">
+                        <input
+                          type="text"
+                          value={spec.key}
+                          onChange={(e) => {
+                            const newSpecs = [...specifications];
+                            newSpecs[index].key = e.target.value;
+                            setSpecifications(newSpecs);
+                          }}
+                          placeholder="e.g., Print Speed"
+                          className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                        <input
+                          type="text"
+                          value={spec.value}
+                          onChange={(e) => {
+                            const newSpecs = [...specifications];
+                            newSpecs[index].value = e.target.value;
+                            setSpecifications(newSpecs);
+                          }}
+                          placeholder="e.g., 40 ppm"
+                          className="flex-1 px-3 py-1.5 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSpecifications(
+                              specifications.filter((_, i) => i !== index),
+                            );
+                          }}
+                          className="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <MinusCircle size={16} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 italic">
+                    No specifications added. Click "Add Spec" to add printer
+                    specifications like Print Speed, Resolution, etc.
+                  </p>
+                )}
+              </div>
+
               <div className="pt-4 flex gap-3">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 py-3 border border-gray-200 rounded-lg font-bold text-gray-600 hover:bg-gray-50"
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 border border-gray-200 rounded-lg font-bold text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-200"
+                  disabled={isSubmitting}
+                  className="flex-1 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  {editingProduct ? "Save Changes" : "Create Product"}
+                  {isSubmitting ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      {editingProduct ? "Saving..." : "Creating..."}
+                    </>
+                  ) : editingProduct ? (
+                    "Save Changes"
+                  ) : (
+                    "Create Product"
+                  )}
                 </button>
               </div>
             </form>
@@ -559,15 +779,43 @@ const AdminProducts: React.FC = () => {
                       productName: "",
                     })
                   }
-                  className="flex-1 py-3 border border-gray-200 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition-colors"
+                  disabled={isDeleting}
+                  className="flex-1 py-3 border border-gray-200 rounded-lg font-bold text-gray-600 hover:bg-gray-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDelete(deleteConfirm.productId)}
-                  className="flex-1 py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200"
+                  disabled={isDeleting}
+                  className="flex-1 py-3 bg-red-600 text-white rounded-lg font-bold hover:bg-red-700 transition-colors shadow-lg shadow-red-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Delete
+                  {isDeleting ? (
+                    <>
+                      <svg
+                        className="animate-spin h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <circle
+                          className="opacity-25"
+                          cx="12"
+                          cy="12"
+                          r="10"
+                          stroke="currentColor"
+                          strokeWidth="4"
+                        ></circle>
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        ></path>
+                      </svg>
+                      Deleting...
+                    </>
+                  ) : (
+                    "Delete"
+                  )}
                 </button>
               </div>
             </div>

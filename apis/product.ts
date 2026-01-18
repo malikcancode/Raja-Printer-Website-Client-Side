@@ -1,5 +1,10 @@
 import apiClient from "./auth";
 
+export interface ProductSpecification {
+  key: string;
+  value: string;
+}
+
 export interface Product {
   _id?: string;
   id?: string;
@@ -15,7 +20,9 @@ export interface Product {
   isSale?: boolean;
   discount?: string;
   stock?: number;
+  weight?: number;
   description?: string;
+  specifications?: ProductSpecification[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -24,6 +31,16 @@ interface ProductsResponse {
   success: boolean;
   count?: number;
   data: Product[] | Product;
+  message?: string;
+}
+
+interface ValidateProductsResponse {
+  success: boolean;
+  data: {
+    existingProducts: Product[];
+    existingIds: string[];
+    deletedIds: string[];
+  };
   message?: string;
 }
 
@@ -39,6 +56,15 @@ export const productAPI = {
       : "";
     const response = await apiClient.get<ProductsResponse>(
       `/products${queryString ? `?${queryString}` : ""}`,
+    );
+    return response.data;
+  },
+
+  // Validate product IDs (check which still exist in DB)
+  validateIds: async (ids: string[]): Promise<ValidateProductsResponse> => {
+    const response = await apiClient.post<ValidateProductsResponse>(
+      "/products/validate",
+      { ids },
     );
     return response.data;
   },

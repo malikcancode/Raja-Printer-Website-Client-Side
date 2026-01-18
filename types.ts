@@ -1,5 +1,11 @@
+export interface ProductSpecification {
+  key: string;
+  value: string;
+}
+
 export interface Product {
   id: string;
+  _id?: string; // MongoDB ID from backend
   name: string;
   category: string;
   price: number;
@@ -11,6 +17,12 @@ export interface Product {
   discount?: string;
   tags?: string[];
   description?: string;
+  stock?: number;
+  weight?: number;
+  specifications?: ProductSpecification[];
+  cloudinaryId?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Category {
@@ -26,7 +38,7 @@ export interface Banner {
   subtitle: string;
   image: string;
   buttonText: string;
-  theme: 'dark' | 'light';
+  theme: "dark" | "light";
 }
 
 export interface CartItem extends Product {
@@ -39,7 +51,7 @@ export interface User {
   isAdmin?: boolean;
 }
 
-export type OrderStatus = 'Pending' | 'Processing' | 'Shipped' | 'Delivered';
+export type OrderStatus = "Pending" | "Processing" | "Shipped" | "Delivered";
 
 export interface Order {
   id: string;

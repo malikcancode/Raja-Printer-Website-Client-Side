@@ -1,15 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, CartItem, User, Order, OrderStatus } from "../types";
-import { INITIAL_PRODUCTS } from "../constants";
 import { authAPI } from "../apis/auth";
+import { productAPI } from "../apis/product";
 
 interface ShopContextType {
   products: Product[];
+  productsLoading: boolean;
   addProduct: (product: Product) => void;
   updateProduct: (product: Product) => void;
   deleteProduct: (id: string) => void;
+  refreshProducts: () => Promise<void>;
 
   cart: CartItem[];
+  setCart: React.Dispatch<React.SetStateAction<CartItem[]>>;
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -25,7 +28,10 @@ interface ShopContextType {
   logout: () => void;
 
   wishlist: Product[];
+  setWishlist: React.Dispatch<React.SetStateAction<Product[]>>;
   toggleWishlist: (product: Product) => void;
+  wishlistCount: number;
+  isInWishlist: (productId: string) => boolean;
 
   orders: Order[];
   placeOrder: (orderData: Omit<Order, "id" | "date" | "status">) => void;
@@ -38,10 +44,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   // Products State
-  const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem("raja_products");
-    return saved ? JSON.parse(saved) : INITIAL_PRODUCTS;
-  });
+  const [products, setProducts] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
 
   const [cart, setCart] = useState<CartItem[]>([]);
   const [user, setUser] = useState<User | null>(() => {
@@ -55,6 +59,37 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
     return saved ? JSON.parse(saved) : [];
   });
   const [isAuthChecked, setIsAuthChecked] = useState(false);
+  const [isCartInitialized, setIsCartInitialized] = useState(false);
+
+  // Fetch products from API
+  const refreshProducts = async () => {
+    setProductsLoading(true);
+    try {
+      const response = await productAPI.getAll();
+      if (response.success && Array.isArray(response.data)) {
+        // Map products to ensure they have both id and _id fields for compatibility
+        const mappedProducts = response.data.map((product: any) => ({
+          ...product,
+          id: product._id || product.id, // Use _id as id for compatibility
+        }));
+        setProducts(mappedProducts);
+      } else {
+        // Fallback to empty array if API fails
+        setProducts([]);
+      }
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      // Fallback to empty array on error
+      setProducts([]);
+    } finally {
+      setProductsLoading(false);
+    }
+  };
+
+  // Fetch products on mount
+  useEffect(() => {
+    refreshProducts();
+  }, []);
 
   // Check for existing auth token on mount and validate
   useEffect(() => {
@@ -94,27 +129,50 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
     checkAuth();
   }, []);
 
-  // Persistence Effects
+  // Persistence Effects - Load from localStorage first
   useEffect(() => {
     const savedCart = localStorage.getItem("raja_cart");
     const savedWishlist = localStorage.getItem("raja_wishlist");
 
-    if (savedCart) setCart(JSON.parse(savedCart));
-    if (savedWishlist) setWishlist(JSON.parse(savedWishlist));
+    if (savedCart) {
+      try {
+        const parsedCart = JSON.parse(savedCart);
+        if (Array.isArray(parsedCart) && parsedCart.length > 0) {
+          setCart(parsedCart);
+        }
+      } catch (e) {
+        console.error("Error parsing saved cart:", e);
+      }
+    }
+    if (savedWishlist) {
+      try {
+        const parsedWishlist = JSON.parse(savedWishlist);
+        if (Array.isArray(parsedWishlist) && parsedWishlist.length > 0) {
+          setWishlist(parsedWishlist);
+        }
+      } catch (e) {
+        console.error("Error parsing saved wishlist:", e);
+      }
+    }
+
+    // Mark as initialized after loading
+    setIsCartInitialized(true);
   }, []);
 
-  useEffect(
-    () => localStorage.setItem("raja_products", JSON.stringify(products)),
-    [products],
-  );
-  useEffect(
-    () => localStorage.setItem("raja_cart", JSON.stringify(cart)),
-    [cart],
-  );
-  useEffect(
-    () => localStorage.setItem("raja_wishlist", JSON.stringify(wishlist)),
-    [wishlist],
-  );
+  // Save cart, wishlist, and orders to localStorage (removed products since they come from API)
+  // Only persist cart items that have _id (from database), filter out mock/constant items
+  // Only save after initial load is complete to prevent overwriting with empty array
+  useEffect(() => {
+    if (!isCartInitialized) return;
+    const dbCartItems = cart.filter((item) => (item as any)._id);
+    localStorage.setItem("raja_cart", JSON.stringify(dbCartItems));
+  }, [cart, isCartInitialized]);
+  // Only persist wishlist items that have _id (from database), filter out mock/constant items
+  useEffect(() => {
+    if (!isCartInitialized) return;
+    const dbWishlistItems = wishlist.filter((item) => (item as any)._id);
+    localStorage.setItem("raja_wishlist", JSON.stringify(dbWishlistItems));
+  }, [wishlist, isCartInitialized]);
   useEffect(
     () => localStorage.setItem("raja_orders", JSON.stringify(orders)),
     [orders],
@@ -138,28 +196,41 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
   // Cart Management
   const addToCart = (product: Product) => {
     setCart((prev) => {
-      const existing = prev.find((item) => item.id === product.id);
+      // Use _id for matching if available, fallback to id
+      const productKey = (product as any)._id || product.id;
+      const existing = prev.find((item) => {
+        const itemKey = (item as any)._id || item.id;
+        return itemKey === productKey;
+      });
+
       if (existing) {
-        return prev.map((item) =>
-          item.id === product.id
+        return prev.map((item) => {
+          const itemKey = (item as any)._id || item.id;
+          return itemKey === productKey
             ? { ...item, quantity: item.quantity + 1 }
-            : item,
-        );
+            : item;
+        });
       }
       return [...prev, { ...product, quantity: 1 }];
     });
   };
 
   const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((item) => item.id !== productId));
+    setCart((prev) =>
+      prev.filter((item) => {
+        const itemKey = (item as any)._id || item.id;
+        return itemKey !== productId;
+      }),
+    );
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
     if (quantity < 1) return;
     setCart((prev) =>
-      prev.map((item) =>
-        item.id === productId ? { ...item, quantity } : item,
-      ),
+      prev.map((item) => {
+        const itemKey = (item as any)._id || item.id;
+        return itemKey === productId ? { ...item, quantity } : item;
+      }),
     );
   };
 
@@ -214,13 +285,29 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
   // Wishlist Management
   const toggleWishlist = (product: Product) => {
     setWishlist((prev) => {
-      const exists = prev.find((p) => p.id === product.id);
+      const productKey = (product as any)._id || product.id;
+      const exists = prev.find((p) => {
+        const pKey = (p as any)._id || p.id;
+        return pKey === productKey;
+      });
       if (exists) {
-        return prev.filter((p) => p.id !== product.id);
+        return prev.filter((p) => {
+          const pKey = (p as any)._id || p.id;
+          return pKey !== productKey;
+        });
       }
       return [...prev, product];
     });
   };
+
+  const isInWishlist = (productId: string) => {
+    return wishlist.some((p) => {
+      const pKey = (p as any)._id || p.id;
+      return pKey === productId;
+    });
+  };
+
+  const wishlistCount = wishlist.length;
 
   // Order Management
   const placeOrder = (orderData: Omit<Order, "id" | "date" | "status">) => {
@@ -256,10 +343,13 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
     <ShopContext.Provider
       value={{
         products,
+        productsLoading,
         addProduct,
         updateProduct,
         deleteProduct,
+        refreshProducts,
         cart,
+        setCart,
         addToCart,
         removeFromCart,
         updateQuantity,
@@ -270,7 +360,10 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
         login,
         logout,
         wishlist,
+        setWishlist,
         toggleWishlist,
+        wishlistCount,
+        isInWishlist,
         orders,
         placeOrder,
         updateOrderStatus,

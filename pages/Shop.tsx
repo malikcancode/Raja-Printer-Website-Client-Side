@@ -1,10 +1,16 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
-import ProductCard from '../components/ProductCard';
-import { CATEGORIES } from '../constants';
-import { SlidersHorizontal, X, ChevronLeft, ChevronRight, Search } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Product } from '../types';
-import { useShop } from '../context/ShopContext';
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import ProductCard from "../components/ProductCard";
+import { CATEGORIES } from "../constants";
+import {
+  SlidersHorizontal,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { Product } from "../types";
+import { useShop } from "../context/ShopContext";
 
 // Reusable Filter Content Component
 interface FilterContentProps {
@@ -13,15 +19,19 @@ interface FilterContentProps {
   products: Product[];
 }
 
-const FilterContent: React.FC<FilterContentProps> = ({ selectedCategories, toggleCategory, products }) => {
+const FilterContent: React.FC<FilterContentProps> = ({
+  selectedCategories,
+  toggleCategory,
+  products,
+}) => {
   return (
     <div className="space-y-8">
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-bold text-gray-900">Categories</h3>
           {selectedCategories.length > 0 && (
-            <button 
-              onClick={() => toggleCategory('clearAll')} 
+            <button
+              onClick={() => toggleCategory("clearAll")}
               className="text-xs text-blue-600 hover:underline font-medium"
               onMouseDown={(e) => e.preventDefault()} // Prevent focus loss issues
             >
@@ -30,20 +40,22 @@ const FilterContent: React.FC<FilterContentProps> = ({ selectedCategories, toggl
           )}
         </div>
         <ul className="space-y-3 text-sm">
-          {CATEGORIES.map(cat => (
+          {CATEGORIES.map((cat) => (
             <li key={cat.id}>
               <label className="flex items-center gap-3 cursor-pointer group select-none">
-                <input 
-                  type="checkbox" 
+                <input
+                  type="checkbox"
                   checked={selectedCategories.includes(cat.name)}
                   onChange={() => toggleCategory(cat.name)}
-                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500" 
+                  className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
-                <span className={`transition-colors ${selectedCategories.includes(cat.name) ? 'text-blue-600 font-bold' : 'text-gray-600 group-hover:text-blue-600'}`}>
+                <span
+                  className={`transition-colors ${selectedCategories.includes(cat.name) ? "text-blue-600 font-bold" : "text-gray-600 group-hover:text-blue-600"}`}
+                >
                   {cat.name}
                 </span>
                 <span className="ml-auto text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                  {products.filter(p => p.category === cat.name).length}
+                  {products.filter((p) => p.category === cat.name).length}
                 </span>
               </label>
             </li>
@@ -58,16 +70,30 @@ const FilterContent: React.FC<FilterContentProps> = ({ selectedCategories, toggl
         <div className="space-y-4">
           <div className="flex items-center gap-4 text-sm">
             <div className="relative w-full">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">PKR</span>
-              <input type="number" placeholder="Min" className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs" />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                PKR
+              </span>
+              <input
+                type="number"
+                placeholder="Min"
+                className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs"
+              />
             </div>
             <span className="text-gray-300">-</span>
             <div className="relative w-full">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">PKR</span>
-              <input type="number" placeholder="Max" className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs" />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs">
+                PKR
+              </span>
+              <input
+                type="number"
+                placeholder="Max"
+                className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs"
+              />
             </div>
           </div>
-          <button className="w-full py-2 bg-gray-900 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-600 transition-colors">Apply</button>
+          <button className="w-full py-2 bg-gray-900 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-600 transition-colors">
+            Apply
+          </button>
         </div>
       </div>
     </div>
@@ -75,54 +101,57 @@ const FilterContent: React.FC<FilterContentProps> = ({ selectedCategories, toggl
 };
 
 // Highlight Match Component
-const HighlightMatch: React.FC<{ text: string; highlight: string }> = ({ text, highlight }) => {
+const HighlightMatch: React.FC<{ text: string; highlight: string }> = ({
+  text,
+  highlight,
+}) => {
   if (!highlight.trim()) return <>{text}</>;
-  
-  const regex = new RegExp(`(${highlight.split(' ').filter(Boolean).join('|')})`, 'gi');
+
+  const regex = new RegExp(
+    `(${highlight.split(" ").filter(Boolean).join("|")})`,
+    "gi",
+  );
   const parts = text.split(regex);
 
   return (
     <span>
-      {parts.map((part, i) => 
-        regex.test(part) ? <span key={i} className="text-blue-600 font-extrabold">{part}</span> : part
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} className="text-blue-600 font-extrabold">
+            {part}
+          </span>
+        ) : (
+          part
+        ),
       )}
     </span>
   );
 };
 
 const Shop: React.FC = () => {
-  const { products: contextProducts } = useShop();
+  const { products: contextProducts, productsLoading } = useShop();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const searchRef = useRef<HTMLDivElement>(null);
   const itemsPerPage = 9;
 
-  // Simulate a larger product catalog for pagination demonstration if list is short
+  // Use the actual products from API (no more duplication)
   const allProducts = useMemo(() => {
-    // If we have few products, duplicate them to show pagination
-    if (contextProducts.length < 10) {
-        return Array.from({ length: 6 }).flatMap((_, i) => 
-            contextProducts.map(product => ({
-              ...product,
-              id: `${product.id}-${i}`, // Ensure unique IDs
-            }))
-        );
-    }
     return contextProducts;
   }, [contextProducts]);
 
   const toggleCategory = (categoryName: string) => {
-    if (categoryName === 'clearAll') {
+    if (categoryName === "clearAll") {
       setSelectedCategories([]);
     } else {
-      setSelectedCategories(prev => 
+      setSelectedCategories((prev) =>
         prev.includes(categoryName)
-          ? prev.filter(c => c !== categoryName)
-          : [...prev, categoryName]
+          ? prev.filter((c) => c !== categoryName)
+          : [...prev, categoryName],
       );
     }
     setCurrentPage(1); // Reset to first page when filtering
@@ -134,18 +163,21 @@ const Shop: React.FC = () => {
 
     // Category Filter
     if (selectedCategories.length > 0) {
-      products = products.filter(product => selectedCategories.includes(product.category));
+      products = products.filter((product) =>
+        selectedCategories.includes(product.category),
+      );
     }
 
     // Search Filter (Fuzzy)
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       const queryWords = query.split(/\s+/).filter(Boolean);
-      
-      products = products.filter(product => {
-        const searchableText = `${product.name} ${product.category} ${product.tags?.join(' ') || ''}`.toLowerCase();
+
+      products = products.filter((product) => {
+        const searchableText =
+          `${product.name} ${product.category} ${product.tags?.join(" ") || ""}`.toLowerCase();
         // Check if ALL words in the query exist in the product text
-        return queryWords.every(word => searchableText.includes(word));
+        return queryWords.every((word) => searchableText.includes(word));
       });
     }
 
@@ -167,30 +199,33 @@ const Shop: React.FC = () => {
   // Click outside to close suggestions
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
         setShowSuggestions(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!showSuggestions || suggestions.length === 0) return;
 
     switch (e.key) {
-      case 'ArrowDown':
+      case "ArrowDown":
         e.preventDefault();
-        setActiveSuggestionIndex(prev => 
-          prev < suggestions.length - 1 ? prev + 1 : prev
+        setActiveSuggestionIndex((prev) =>
+          prev < suggestions.length - 1 ? prev + 1 : prev,
         );
         break;
-      case 'ArrowUp':
+      case "ArrowUp":
         e.preventDefault();
-        setActiveSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
+        setActiveSuggestionIndex((prev) => (prev > 0 ? prev - 1 : -1));
         break;
-      case 'Enter':
+      case "Enter":
         e.preventDefault();
         if (activeSuggestionIndex >= 0) {
           const selected = suggestions[activeSuggestionIndex];
@@ -200,7 +235,7 @@ const Shop: React.FC = () => {
           setShowSuggestions(false);
         }
         break;
-      case 'Escape':
+      case "Escape":
         setShowSuggestions(false);
         break;
     }
@@ -214,30 +249,37 @@ const Shop: React.FC = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   // Prevent body scroll when mobile filter is open
   useEffect(() => {
     if (isMobileFilterOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
-    return () => { document.body.style.overflow = 'unset'; };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isMobileFilterOpen]);
 
   return (
     <div className="pt-8 pb-20 bg-gray-50 min-h-screen">
       <div className="container mx-auto px-4">
-        
         {/* Breadcrumbs */}
         <div className="flex items-center text-sm text-gray-500 mb-6 overflow-x-auto whitespace-nowrap scrollbar-hide">
-          <Link to="/" className="hover:text-blue-600 transition-colors">Home</Link>
+          <Link to="/" className="hover:text-blue-600 transition-colors">
+            Home
+          </Link>
           <span className="mx-2 text-gray-300">/</span>
-          <button 
-            onClick={() => { setSelectedCategories([]); setCurrentPage(1); setSearchQuery(''); }}
-            className={`hover:text-blue-600 transition-colors ${selectedCategories.length === 0 && !searchQuery ? 'font-bold text-gray-900 pointer-events-none' : ''}`}
+          <button
+            onClick={() => {
+              setSelectedCategories([]);
+              setCurrentPage(1);
+              setSearchQuery("");
+            }}
+            className={`hover:text-blue-600 transition-colors ${selectedCategories.length === 0 && !searchQuery ? "font-bold text-gray-900 pointer-events-none" : ""}`}
           >
             Shop
           </button>
@@ -245,7 +287,9 @@ const Shop: React.FC = () => {
             <>
               <span className="mx-2 text-gray-300">/</span>
               <span className="font-bold text-gray-900">
-                {selectedCategories.length === 1 ? selectedCategories[0] : `${selectedCategories.length} Filters`}
+                {selectedCategories.length === 1
+                  ? selectedCategories[0]
+                  : `${selectedCategories.length} Filters`}
               </span>
             </>
           )}
@@ -259,20 +303,28 @@ const Shop: React.FC = () => {
 
         {/* Page Header */}
         <div className="mb-10">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">Shop All Products</h1>
-          <p className="text-gray-500 max-w-2xl">Browse our extensive collection of printers, copiers, and office supplies. Filter by category to find exactly what you need.</p>
+          <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+            Shop All Products
+          </h1>
+          <p className="text-gray-500 max-w-2xl">
+            Browse our extensive collection of printers, copiers, and office
+            supplies. Filter by category to find exactly what you need.
+          </p>
         </div>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          
           {/* Mobile Filter Button */}
           <div className="lg:hidden mb-6">
-            <button 
+            <button
               className="flex items-center justify-between w-full bg-white p-4 rounded-xl border border-gray-200 shadow-sm font-bold text-gray-700 hover:bg-gray-50 transition-colors"
               onClick={() => setIsMobileFilterOpen(true)}
             >
-              <span className="flex items-center gap-2"><SlidersHorizontal size={18} /> Filter Products</span>
-              <span className="bg-gray-100 text-xs px-2 py-1 rounded-full">{selectedCategories.length} active</span>
+              <span className="flex items-center gap-2">
+                <SlidersHorizontal size={18} /> Filter Products
+              </span>
+              <span className="bg-gray-100 text-xs px-2 py-1 rounded-full">
+                {selectedCategories.length} active
+              </span>
             </button>
           </div>
 
@@ -280,35 +332,35 @@ const Shop: React.FC = () => {
           {isMobileFilterOpen && (
             <div className="fixed inset-0 z-50 lg:hidden">
               {/* Backdrop */}
-              <div 
+              <div
                 className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200"
                 onClick={() => setIsMobileFilterOpen(false)}
               ></div>
-              
+
               {/* Panel */}
               <div className="absolute right-0 top-0 h-full w-[85%] max-w-sm bg-white shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
                 <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white">
                   <h2 className="text-lg font-extrabold text-gray-900 flex items-center gap-2">
                     <SlidersHorizontal size={20} /> Filters
                   </h2>
-                  <button 
+                  <button
                     onClick={() => setIsMobileFilterOpen(false)}
                     className="p-2 bg-gray-100 rounded-full text-gray-500 hover:bg-red-50 hover:text-red-500 transition-colors"
                   >
                     <X size={20} />
                   </button>
                 </div>
-                
+
                 <div className="flex-1 overflow-y-auto p-5 bg-gray-50">
-                  <FilterContent 
-                    selectedCategories={selectedCategories} 
-                    toggleCategory={toggleCategory} 
+                  <FilterContent
+                    selectedCategories={selectedCategories}
+                    toggleCategory={toggleCategory}
                     products={allProducts}
                   />
                 </div>
 
                 <div className="p-5 border-t border-gray-100 bg-white">
-                  <button 
+                  <button
                     onClick={() => setIsMobileFilterOpen(false)}
                     className="w-full py-3.5 bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-200 active:scale-95 transition-transform"
                   >
@@ -321,16 +373,15 @@ const Shop: React.FC = () => {
 
           {/* Desktop Sidebar */}
           <aside className="hidden lg:block w-64 shrink-0">
-            <FilterContent 
-              selectedCategories={selectedCategories} 
-              toggleCategory={toggleCategory} 
+            <FilterContent
+              selectedCategories={selectedCategories}
+              toggleCategory={toggleCategory}
               products={allProducts}
             />
           </aside>
 
           {/* Product Grid Area */}
           <div className="flex-1">
-            
             {/* Search Bar & Auto-suggestions */}
             <div className="relative mb-6" ref={searchRef}>
               <div className="relative">
@@ -347,10 +398,16 @@ const Shop: React.FC = () => {
                   onFocus={() => setShowSuggestions(true)}
                   className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-xl shadow-sm focus:border-blue-600 focus:ring-1 focus:ring-blue-600 outline-none transition-all text-gray-900 font-medium"
                 />
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                <Search
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
+                  size={20}
+                />
                 {searchQuery && (
                   <button
-                    onClick={() => { setSearchQuery(''); setCurrentPage(1); }}
+                    onClick={() => {
+                      setSearchQuery("");
+                      setCurrentPage(1);
+                    }}
                     className="absolute right-4 top-1/2 -translate-y-1/2 p-1 bg-gray-100 rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 transition-colors"
                   >
                     <X size={14} />
@@ -371,17 +428,47 @@ const Shop: React.FC = () => {
                               setShowSuggestions(false);
                             }}
                             className={`w-full text-left px-4 py-3 flex items-center gap-4 transition-colors border-b border-gray-50 last:border-0 group ${
-                              index === activeSuggestionIndex ? 'bg-blue-50' : 'hover:bg-gray-50'
+                              index === activeSuggestionIndex
+                                ? "bg-blue-50"
+                                : "hover:bg-gray-50"
                             }`}
                           >
                             <div className="w-10 h-10 bg-gray-50 rounded-lg overflow-hidden shrink-0 border border-gray-100">
-                               <img src={product.image} alt={product.name} className="w-full h-full object-cover mix-blend-multiply group-hover:scale-110 transition-transform" />
+                              <img
+                                src={product.image}
+                                alt={product.name}
+                                className="w-full h-full object-cover mix-blend-multiply group-hover:scale-110 transition-transform"
+                              />
                             </div>
-                            <div>
-                              <p className={`text-sm font-medium text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors ${index === activeSuggestionIndex ? 'text-blue-700' : ''}`}>
-                                <HighlightMatch text={product.name} highlight={searchQuery} />
+                            <div className="flex-1 min-w-0">
+                              <p
+                                className={`text-sm font-medium text-gray-900 line-clamp-1 group-hover:text-blue-600 transition-colors ${index === activeSuggestionIndex ? "text-blue-700" : ""}`}
+                              >
+                                <HighlightMatch
+                                  text={product.name}
+                                  highlight={searchQuery}
+                                />
                               </p>
-                              <p className="text-xs text-gray-500">{product.category}</p>
+                              <div className="flex items-center gap-2">
+                                <p className="text-xs text-gray-500">
+                                  {product.category}
+                                </p>
+                                <span
+                                  className={`inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
+                                    (product.stock || 0) === 0
+                                      ? "bg-red-100 text-red-700"
+                                      : (product.stock || 0) <= 5
+                                        ? "bg-yellow-100 text-yellow-700"
+                                        : "bg-green-100 text-green-700"
+                                  }`}
+                                >
+                                  {(product.stock || 0) === 0
+                                    ? "Out of Stock"
+                                    : (product.stock || 0) <= 5
+                                      ? `${product.stock} left`
+                                      : "In Stock"}
+                                </span>
+                              </div>
                             </div>
                           </button>
                         </li>
@@ -399,10 +486,24 @@ const Shop: React.FC = () => {
             {/* Toolbar */}
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
               <span className="text-sm text-gray-500">
-                Showing <span className="font-bold text-gray-900">{filteredProducts.length > 0 ? startIndex + 1 : 0}</span> - <span className="font-bold text-gray-900">{Math.min(endIndex, filteredProducts.length)}</span> of <span className="font-bold text-gray-900">{filteredProducts.length}</span> results
+                Showing{" "}
+                <span className="font-bold text-gray-900">
+                  {filteredProducts.length > 0 ? startIndex + 1 : 0}
+                </span>{" "}
+                -{" "}
+                <span className="font-bold text-gray-900">
+                  {Math.min(endIndex, filteredProducts.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-bold text-gray-900">
+                  {filteredProducts.length}
+                </span>{" "}
+                results
               </span>
               <div className="flex items-center gap-3 ml-auto">
-                <span className="text-sm text-gray-500 hidden sm:inline">Sort by:</span>
+                <span className="text-sm text-gray-500 hidden sm:inline">
+                  Sort by:
+                </span>
                 <select className="text-sm border-none bg-gray-50 py-2 pl-4 pr-10 rounded-lg font-bold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors focus:ring-0 outline-none">
                   <option>Featured</option>
                   <option>Price: Low to High</option>
@@ -415,8 +516,8 @@ const Shop: React.FC = () => {
             {/* Active Filters Display */}
             {selectedCategories.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-6">
-                {selectedCategories.map(cat => (
-                  <button 
+                {selectedCategories.map((cat) => (
+                  <button
                     key={cat}
                     onClick={() => toggleCategory(cat)}
                     className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 hover:bg-blue-200 transition-colors"
@@ -428,9 +529,18 @@ const Shop: React.FC = () => {
             )}
 
             {/* Grid */}
-            {filteredProducts.length > 0 ? (
+            {productsLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="text-center">
+                  <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+                  <p className="text-gray-500 font-medium">
+                    Loading products...
+                  </p>
+                </div>
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-                {paginatedProducts.map(product => (
+                {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
@@ -439,10 +549,18 @@ const Shop: React.FC = () => {
                 <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
                   <Search size={32} />
                 </div>
-                <p className="text-gray-500 text-lg font-medium">No products found matching your selection.</p>
-                <p className="text-gray-400 text-sm mt-1 mb-6">Try adjusting your search or filters.</p>
-                <button 
-                  onClick={() => { setSelectedCategories([]); setCurrentPage(1); setSearchQuery(''); }}
+                <p className="text-gray-500 text-lg font-medium">
+                  No products found matching your selection.
+                </p>
+                <p className="text-gray-400 text-sm mt-1 mb-6">
+                  Try adjusting your search or filters.
+                </p>
+                <button
+                  onClick={() => {
+                    setSelectedCategories([]);
+                    setCurrentPage(1);
+                    setSearchQuery("");
+                  }}
                   className="text-blue-600 font-bold hover:underline"
                 >
                   Clear all filters
@@ -454,29 +572,31 @@ const Shop: React.FC = () => {
             {filteredProducts.length > itemsPerPage && (
               <div className="mt-12 flex justify-center">
                 <nav className="flex items-center gap-2">
-                  <button 
+                  <button
                     onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-blue-600 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:text-gray-500"
                   >
                     <ChevronLeft size={18} />
                   </button>
-                  
-                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                    <button 
-                      key={page}
-                      onClick={() => handlePageChange(page)}
-                      className={`w-10 h-10 flex items-center justify-center rounded-lg font-bold transition-all ${
-                        currentPage === page 
-                          ? 'bg-blue-600 text-white shadow-md' 
-                          : 'border border-gray-200 text-gray-500 hover:border-blue-600 hover:text-blue-600'
-                      }`}
-                    >
-                      {page}
-                    </button>
-                  ))}
 
-                  <button 
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => handlePageChange(page)}
+                        className={`w-10 h-10 flex items-center justify-center rounded-lg font-bold transition-all ${
+                          currentPage === page
+                            ? "bg-blue-600 text-white shadow-md"
+                            : "border border-gray-200 text-gray-500 hover:border-blue-600 hover:text-blue-600"
+                        }`}
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
+
+                  <button
                     onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200 text-gray-500 hover:border-blue-600 hover:text-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:border-gray-200 disabled:hover:text-gray-500"
