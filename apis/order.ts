@@ -1,6 +1,4 @@
-import axios from "axios";
-
-const API_URL = "http://localhost:5000/api/orders";
+import apiClient from "./auth";
 
 interface CartItem {
   productId: string;
@@ -32,7 +30,7 @@ export const calculateShipping = async (
   destinationCountry: string,
 ) => {
   try {
-    const response = await axios.post(`${API_URL}/calculate-shipping`, {
+    const response = await apiClient.post("/orders/calculate-shipping", {
       items,
       destinationCountry,
     });
@@ -47,16 +45,7 @@ export const calculateShipping = async (
 // Create new order
 export const createOrder = async (orderData: OrderData) => {
   try {
-    const token = localStorage.getItem("auth_token");
-    const config = token
-      ? {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      : {};
-
-    const response = await axios.post(API_URL, orderData, config);
+    const response = await apiClient.post("/orders", orderData);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to create order");
@@ -66,16 +55,7 @@ export const createOrder = async (orderData: OrderData) => {
 // Get user orders (authenticated)
 export const getUserOrders = async () => {
   try {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      throw new Error("Authentication required");
-    }
-
-    const response = await axios.get(`${API_URL}/my-orders`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await apiClient.get("/orders/my-orders");
     return response.data;
   } catch (error: any) {
     throw new Error(
@@ -87,18 +67,12 @@ export const getUserOrders = async () => {
 // Get single order by ID (with optional email for guest)
 export const getOrder = async (orderId: string, email?: string) => {
   try {
-    const token = localStorage.getItem("auth_token");
     const config: any = {};
-
-    if (token) {
-      config.headers = { Authorization: `Bearer ${token}` };
-    }
-
     if (email) {
       config.params = { email };
     }
 
-    const response = await axios.get(`${API_URL}/${orderId}`, config);
+    const response = await apiClient.get(`/orders/${orderId}`, config);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch order");
@@ -108,22 +82,12 @@ export const getOrder = async (orderId: string, email?: string) => {
 // Admin: Get all orders
 export const getAllOrders = async (status?: string, page = 1, limit = 10) => {
   try {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      throw new Error("Authentication required");
-    }
-
     const params: any = { page, limit };
     if (status) {
       params.status = status;
     }
 
-    const response = await axios.get(API_URL, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      params,
-    });
+    const response = await apiClient.get("/orders", { params });
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to fetch orders");
@@ -133,20 +97,9 @@ export const getAllOrders = async (status?: string, page = 1, limit = 10) => {
 // Admin: Update order status
 export const updateOrderStatus = async (orderId: string, status: string) => {
   try {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      throw new Error("Authentication required");
-    }
-
-    const response = await axios.put(
-      `${API_URL}/${orderId}/status`,
-      { status },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      },
-    );
+    const response = await apiClient.put(`/orders/${orderId}/status`, {
+      status,
+    });
     return response.data;
   } catch (error: any) {
     throw new Error(
@@ -158,16 +111,7 @@ export const updateOrderStatus = async (orderId: string, status: string) => {
 // Admin: Delete order
 export const deleteOrder = async (orderId: string) => {
   try {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      throw new Error("Authentication required");
-    }
-
-    const response = await axios.delete(`${API_URL}/${orderId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await apiClient.delete(`/orders/${orderId}`);
     return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.message || "Failed to delete order");
