@@ -25,6 +25,11 @@ interface ShopContextType {
     email: string,
     pass: string,
   ) => Promise<{ success: boolean; message?: string; isAdmin?: boolean }>;
+  register: (
+    name: string,
+    email: string,
+    pass: string,
+  ) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
 
   wishlist: Product[];
@@ -103,6 +108,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
               email: response.data.user.email,
               name: response.data.user.name,
               isAdmin: response.data.user.role === "admin",
+              profilePicture: response.data.user.profilePicture || "",
             };
             setUser(userData);
             localStorage.setItem("raja_user", JSON.stringify(userData));
@@ -276,6 +282,45 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const register = async (name: string, email: string, pass: string) => {
+    try {
+      const response = await authAPI.register({ name, email, password: pass });
+
+      if (response.success) {
+        const { user, token } = response.data;
+
+        // Store token
+        localStorage.setItem("auth_token", token);
+
+        // Set user in context and localStorage
+        const userData = {
+          email: user.email,
+          name: user.name,
+          isAdmin: user.role === "admin",
+          profilePicture: (user as any).profilePicture || "",
+        };
+        setUser(userData);
+        localStorage.setItem("raja_user", JSON.stringify(userData));
+
+        return {
+          success: true,
+        };
+      }
+
+      return {
+        success: false,
+        message: response.message || "Registration failed",
+      };
+    } catch (error: any) {
+      console.error("Registration error:", error);
+      return {
+        success: false,
+        message:
+          error.response?.data?.message || "Network error. Please try again.",
+      };
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem("auth_token");
@@ -358,6 +403,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
         cartCount,
         user,
         login,
+        register,
         logout,
         wishlist,
         setWishlist,

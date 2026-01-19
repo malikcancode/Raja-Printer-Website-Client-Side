@@ -3,12 +3,19 @@ import Hero from "../components/Hero";
 import Features from "../components/Features";
 import ProductCard from "../components/ProductCard";
 import { CATEGORIES, BANNERS, BRANDS, TESTIMONIALS } from "../constants";
-import { ArrowRight, ArrowUpRight, Star } from "lucide-react";
+import { ArrowRight, ArrowUpRight, Star, Flame, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
 
 const Home: React.FC = () => {
   const { products } = useShop();
+
+  // Get HOT/Trending products (products with isHot flag)
+  const hotProducts = products.filter((p) => p.isHot).slice(0, 6);
+
+  // Get Special Offers (products with isSale flag)
+  const saleProducts = products.filter((p) => p.isSale).slice(0, 6);
+
   // Get top 4 products for home page display
   const displayProducts = products.slice(0, 4);
 
@@ -100,6 +107,79 @@ const Home: React.FC = () => {
           </div>
         </div>
       </section>
+
+      {/* HOT / Trending Products Section */}
+      {hotProducts.length > 0 && (
+        <section className="py-20 bg-gradient-to-br from-orange-50 to-red-50 relative z-10 overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200/30 rounded-full blur-3xl"></div>
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-bold uppercase tracking-widest text-xs mb-4">
+                <Flame size={16} className="animate-pulse" />
+                HOT & TRENDING
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                Most Popular Products
+              </h2>
+              <p className="text-gray-500">
+                Discover what's hot right now! These are our best-selling and
+                most frequently purchased items.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+              {hotProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Link
+                to="/shop"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-full font-bold hover:shadow-xl hover:-translate-y-1 transition-all"
+              >
+                View All Hot Deals <Flame size={18} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Special Offers / Bundle Offers Section */}
+      {saleProducts.length > 0 && (
+        <section className="py-20 bg-white relative z-10">
+          <div className="container mx-auto px-4">
+            <div className="text-center max-w-2xl mx-auto mb-12">
+              <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full font-bold uppercase tracking-widest text-xs mb-4">
+                <Tag size={16} />
+                SPECIAL OFFERS
+              </div>
+              <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">
+                Exclusive Deals & Bundles
+              </h2>
+              <p className="text-gray-500">
+                Save big with our special discounts and bundle offers. Limited
+                time deals on premium products!
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+              {saleProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+
+            <div className="mt-12 text-center">
+              <Link
+                to="/shop"
+                className="inline-flex items-center justify-center gap-2 px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full font-bold hover:shadow-xl hover:-translate-y-1 transition-all"
+              >
+                Shop All Offers <Tag size={18} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Trusted Brands */}
       <section className="py-16 bg-white border-t border-gray-100">

@@ -159,6 +159,13 @@ const Header: React.FC = () => {
                         </p>
                       </div>
 
+                      <Link
+                        to="/profile"
+                        className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <User size={14} /> My Profile
+                      </Link>
+
                       {user.isAdmin && (
                         <Link
                           to="/admin"
@@ -283,6 +290,13 @@ const Header: React.FC = () => {
               <p className="text-gray-500 text-sm mb-2">
                 Logged in as {user.name}
               </p>
+              <Link
+                to="/profile"
+                className="text-blue-600 font-bold flex items-center gap-2 mb-3"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <User size={18} /> My Profile
+              </Link>
               {user.isAdmin && (
                 <Link
                   to="/admin"
@@ -308,10 +322,10 @@ const Header: React.FC = () => {
             <p className="text-sm font-bold text-gray-900 mb-1">Need help?</p>
             <p className="text-sm text-gray-500 mb-3">Call our support line</p>
             <a
-              href="tel:03215845098"
+              href="tel:03175223143"
               className="flex items-center text-blue-600 font-bold text-lg"
             >
-              <Phone size={18} className="mr-2" /> 0321 5845098
+              <Phone size={18} className="mr-2" /> 0317-5223143
             </a>
           </div>
         </div>

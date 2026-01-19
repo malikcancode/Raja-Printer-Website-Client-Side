@@ -34,6 +34,7 @@ const Register = lazy(() =>
   import("./pages/Auth").then((module) => ({ default: module.Register })),
 );
 const Favorites = lazy(() => import("./pages/Favorites"));
+const UserProfile = lazy(() => import("./pages/UserProfile"));
 const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/Admin/AdminProducts"));
 const AdminOrders = lazy(() => import("./pages/Admin/AdminOrders"));
@@ -44,6 +45,21 @@ const ScrollToTop = () => {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+};
+
+// Protected Route Component - Redirects to login if not authenticated
+const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({
+  children,
+}) => {
+  const { user } = useShop();
+  const location = useLocation();
+
+  if (!user) {
+    // Redirect to login and save the attempted location
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  return children;
 };
 
 // Admin Layout Component
@@ -144,13 +160,35 @@ const AppRoutes = () => {
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/product/:id" element={<ProductDetail />} />
-          <Route path="/cart" element={<Cart />} />
-          <Route path="/checkout" element={<Checkout />} />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/checkout"
+            element={
+              <ProtectedRoute>
+                <Checkout />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/contact" element={<Contact />} />
           <Route path="/about" element={<About />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <UserProfile />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Admin Routes */}

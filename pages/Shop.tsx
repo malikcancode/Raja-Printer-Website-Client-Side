@@ -11,19 +11,48 @@ import {
 import { Link } from "react-router-dom";
 import { Product } from "../types";
 import { useShop } from "../context/ShopContext";
+import { productAPI } from "../apis/product";
 
 // Reusable Filter Content Component
 interface FilterContentProps {
   selectedCategories: string[];
   toggleCategory: (category: string) => void;
   products: Product[];
+  minPrice: string;
+  maxPrice: string;
+  setMinPrice: (value: string) => void;
+  setMaxPrice: (value: string) => void;
+  onApplyPriceFilter: () => void;
+  onClearPriceFilter: () => void;
+  hasPriceFilter: boolean;
 }
 
 const FilterContent: React.FC<FilterContentProps> = ({
   selectedCategories,
   toggleCategory,
   products,
+  minPrice,
+  maxPrice,
+  setMinPrice,
+  setMaxPrice,
+  onApplyPriceFilter,
+  onClearPriceFilter,
+  hasPriceFilter,
 }) => {
+  // Get unique categories from actual products with counts
+  const categoriesWithCounts = React.useMemo(() => {
+    const categoryMap = new Map<string, number>();
+
+    products.forEach((product) => {
+      const category = product.category;
+      categoryMap.set(category, (categoryMap.get(category) || 0) + 1);
+    });
+
+    return Array.from(categoryMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [products]);
+
   return (
     <div className="space-y-8">
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
@@ -40,8 +69,8 @@ const FilterContent: React.FC<FilterContentProps> = ({
           )}
         </div>
         <ul className="space-y-3 text-sm">
-          {CATEGORIES.map((cat) => (
-            <li key={cat.id}>
+          {categoriesWithCounts.map((cat) => (
+            <li key={cat.name}>
               <label className="flex items-center gap-3 cursor-pointer group select-none">
                 <input
                   type="checkbox"
@@ -55,18 +84,31 @@ const FilterContent: React.FC<FilterContentProps> = ({
                   {cat.name}
                 </span>
                 <span className="ml-auto text-xs text-gray-400 bg-gray-50 px-2 py-0.5 rounded-full">
-                  {products.filter((p) => p.category === cat.name).length}
+                  {cat.count}
                 </span>
               </label>
             </li>
           ))}
         </ul>
+        {categoriesWithCounts.length === 0 && (
+          <p className="text-sm text-gray-400 text-center py-4">
+            No categories available
+          </p>
+        )}
       </div>
 
       <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm">
-        <h3 className="font-bold text-gray-900 mb-4 flex items-center justify-between">
-          Price Range
-        </h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-bold text-gray-900">Price Range</h3>
+          {hasPriceFilter && (
+            <button
+              onClick={onClearPriceFilter}
+              className="text-xs text-blue-600 hover:underline font-medium"
+            >
+              Clear
+            </button>
+          )}
+        </div>
         <div className="space-y-4">
           <div className="flex items-center gap-4 text-sm">
             <div className="relative w-full">
@@ -76,7 +118,9 @@ const FilterContent: React.FC<FilterContentProps> = ({
               <input
                 type="number"
                 placeholder="Min"
-                className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
             <span className="text-gray-300">-</span>
@@ -87,11 +131,16 @@ const FilterContent: React.FC<FilterContentProps> = ({
               <input
                 type="number"
                 placeholder="Max"
-                className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="w-full pl-10 py-2 border border-gray-200 rounded-lg text-xs focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none"
               />
             </div>
           </div>
-          <button className="w-full py-2 bg-gray-900 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-600 transition-colors">
+          <button
+            onClick={onApplyPriceFilter}
+            className="w-full py-2 bg-gray-900 text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-blue-600 transition-colors"
+          >
             Apply
           </button>
         </div>
@@ -136,13 +185,65 @@ const Shop: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
+  const [appliedMinPrice, setAppliedMinPrice] = useState<number | null>(null);
+  const [appliedMaxPrice, setAppliedMaxPrice] = useState<number | null>(null);
+  const [sortBy, setSortBy] = useState<string>("featured");
+  const [sortedProducts, setSortedProducts] = useState<Product[]>([]);
+  const [isSorting, setIsSorting] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const itemsPerPage = 9;
 
-  // Use the actual products from API (no more duplication)
+  // Use sorted products if available, otherwise use context products
   const allProducts = useMemo(() => {
-    return contextProducts;
-  }, [contextProducts]);
+    return sortedProducts.length > 0 || isSorting
+      ? sortedProducts
+      : contextProducts;
+  }, [sortedProducts, contextProducts, isSorting]);
+
+  // Fetch products with sorting
+  useEffect(() => {
+    const fetchSortedProducts = async () => {
+      if (sortBy === "featured") {
+        // Use default products from context
+        setSortedProducts([]);
+        return;
+      }
+
+      setIsSorting(true);
+      try {
+        let sortParam = "";
+        switch (sortBy) {
+          case "price-asc":
+            sortParam = "price-asc";
+            break;
+          case "price-desc":
+            sortParam = "price-desc";
+            break;
+          case "newest":
+            sortParam = "newest";
+            break;
+        }
+
+        const response = await productAPI.getAll({ sort: sortParam });
+        if (response.success && Array.isArray(response.data)) {
+          const mappedProducts = response.data.map((product: any) => ({
+            ...product,
+            id: product._id || product.id,
+          }));
+          setSortedProducts(mappedProducts);
+        }
+      } catch (error) {
+        console.error("Error fetching sorted products:", error);
+        setSortedProducts([]);
+      } finally {
+        setIsSorting(false);
+      }
+    };
+
+    fetchSortedProducts();
+  }, [sortBy]);
 
   const toggleCategory = (categoryName: string) => {
     if (categoryName === "clearAll") {
@@ -157,7 +258,32 @@ const Shop: React.FC = () => {
     setCurrentPage(1); // Reset to first page when filtering
   };
 
-  // Enhanced Filter Logic with Fuzzy Search
+  const handleApplyPriceFilter = () => {
+    const min = minPrice.trim() ? parseFloat(minPrice) : null;
+    const max = maxPrice.trim() ? parseFloat(maxPrice) : null;
+
+    // Validate
+    if (min !== null && max !== null && min > max) {
+      alert("Minimum price cannot be greater than maximum price");
+      return;
+    }
+
+    setAppliedMinPrice(min);
+    setAppliedMaxPrice(max);
+    setCurrentPage(1); // Reset to first page
+  };
+
+  const handleClearPriceFilter = () => {
+    setMinPrice("");
+    setMaxPrice("");
+    setAppliedMinPrice(null);
+    setAppliedMaxPrice(null);
+    setCurrentPage(1);
+  };
+
+  const hasPriceFilter = appliedMinPrice !== null || appliedMaxPrice !== null;
+
+  // Enhanced Filter Logic with Fuzzy Search and Price Range
   const filteredProducts = useMemo(() => {
     let products = allProducts;
 
@@ -166,6 +292,14 @@ const Shop: React.FC = () => {
       products = products.filter((product) =>
         selectedCategories.includes(product.category),
       );
+    }
+
+    // Price Range Filter
+    if (appliedMinPrice !== null) {
+      products = products.filter((product) => product.price >= appliedMinPrice);
+    }
+    if (appliedMaxPrice !== null) {
+      products = products.filter((product) => product.price <= appliedMaxPrice);
     }
 
     // Search Filter (Fuzzy)
@@ -182,7 +316,13 @@ const Shop: React.FC = () => {
     }
 
     return products;
-  }, [selectedCategories, allProducts, searchQuery]);
+  }, [
+    selectedCategories,
+    allProducts,
+    searchQuery,
+    appliedMinPrice,
+    appliedMaxPrice,
+  ]);
 
   // Suggestions Logic
   const suggestions = useMemo(() => {
@@ -356,6 +496,13 @@ const Shop: React.FC = () => {
                     selectedCategories={selectedCategories}
                     toggleCategory={toggleCategory}
                     products={allProducts}
+                    minPrice={minPrice}
+                    maxPrice={maxPrice}
+                    setMinPrice={setMinPrice}
+                    setMaxPrice={setMaxPrice}
+                    onApplyPriceFilter={handleApplyPriceFilter}
+                    onClearPriceFilter={handleClearPriceFilter}
+                    hasPriceFilter={hasPriceFilter}
                   />
                 </div>
 
@@ -377,6 +524,13 @@ const Shop: React.FC = () => {
               selectedCategories={selectedCategories}
               toggleCategory={toggleCategory}
               products={allProducts}
+              minPrice={minPrice}
+              maxPrice={maxPrice}
+              setMinPrice={setMinPrice}
+              setMaxPrice={setMaxPrice}
+              onApplyPriceFilter={handleApplyPriceFilter}
+              onClearPriceFilter={handleClearPriceFilter}
+              hasPriceFilter={hasPriceFilter}
             />
           </aside>
 
@@ -504,17 +658,25 @@ const Shop: React.FC = () => {
                 <span className="text-sm text-gray-500 hidden sm:inline">
                   Sort by:
                 </span>
-                <select className="text-sm border-none bg-gray-50 py-2 pl-4 pr-10 rounded-lg font-bold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors focus:ring-0 outline-none">
-                  <option>Featured</option>
-                  <option>Price: Low to High</option>
-                  <option>Price: High to Low</option>
-                  <option>Newest Arrivals</option>
+                <select
+                  value={sortBy}
+                  onChange={(e) => {
+                    setSortBy(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="text-sm border-none bg-gray-50 py-2 pl-4 pr-10 rounded-lg font-bold text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors focus:ring-0 outline-none"
+                  disabled={isSorting}
+                >
+                  <option value="featured">Featured</option>
+                  <option value="price-asc">Price: Low to High</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="newest">Newest Arrivals</option>
                 </select>
               </div>
             </div>
 
             {/* Active Filters Display */}
-            {selectedCategories.length > 0 && (
+            {(selectedCategories.length > 0 || hasPriceFilter) && (
               <div className="flex flex-wrap gap-2 mb-6">
                 {selectedCategories.map((cat) => (
                   <button
@@ -525,11 +687,20 @@ const Shop: React.FC = () => {
                     {cat} <X size={14} />
                   </button>
                 ))}
+                {hasPriceFilter && (
+                  <button
+                    onClick={handleClearPriceFilter}
+                    className="bg-green-100 text-green-700 px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 hover:bg-green-200 transition-colors"
+                  >
+                    PKR {appliedMinPrice || 0} - {appliedMaxPrice || "∞"}{" "}
+                    <X size={14} />
+                  </button>
+                )}
               </div>
             )}
 
             {/* Grid */}
-            {productsLoading ? (
+            {productsLoading || isSorting ? (
               <div className="flex items-center justify-center py-20">
                 <div className="text-center">
                   <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
@@ -560,6 +731,7 @@ const Shop: React.FC = () => {
                     setSelectedCategories([]);
                     setCurrentPage(1);
                     setSearchQuery("");
+                    handleClearPriceFilter();
                   }}
                   className="text-blue-600 font-bold hover:underline"
                 >

@@ -93,9 +93,11 @@ const Contact: React.FC = () => {
                       Phone
                     </p>
                     <p className="text-lg font-bold text-gray-900">
-                      0321 5845098
+                      0317-5223143
                     </p>
-                    <p className="text-sm text-gray-500">Mon-Sat 9am to 6pm</p>
+                    <p className="text-sm text-gray-500">
+                      051-6059089 | Mon-Sat 9am to 6pm
+                    </p>
                   </div>
                 </div>
 
@@ -108,7 +110,7 @@ const Contact: React.FC = () => {
                       Email
                     </p>
                     <p className="text-lg font-bold text-gray-900">
-                      info@rajasystems.pk
+                      copytech1966@gmail.com
                     </p>
                     <p className="text-sm text-gray-500">Online support 24/7</p>
                   </div>

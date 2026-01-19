@@ -49,6 +49,7 @@ export interface User {
   email: string;
   name: string;
   isAdmin?: boolean;
+  profilePicture?: string;
 }
 
 export type OrderStatus = "Pending" | "Processing" | "Shipped" | "Delivered";
