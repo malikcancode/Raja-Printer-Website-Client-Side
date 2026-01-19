@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { CATEGORIES } from "../../constants";
 import { productAPI, Product, ProductSpecification } from "../../apis/product";
 import { useShop } from "../../context/ShopContext";
 
 const AdminProducts: React.FC = () => {
   const { refreshProducts } = useShop();
   const [products, setProducts] = useState<Product[]>([]);
+  const [existingCategories, setExistingCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -34,7 +34,7 @@ const AdminProducts: React.FC = () => {
 
   const initialFormState: Partial<Product> = {
     name: "",
-    category: "Laser Printers",
+    category: "",
     price: 0,
     originalPrice: 0,
     image: "",
@@ -62,6 +62,11 @@ const AdminProducts: React.FC = () => {
       const response = await productAPI.getAll();
       if (response.success && Array.isArray(response.data)) {
         setProducts(response.data);
+        // Extract unique categories from products
+        const uniqueCategories = Array.from(
+          new Set(response.data.map((p) => p.category).filter(Boolean)),
+        );
+        setExistingCategories(uniqueCategories);
       }
     } catch (error) {
       console.error("Error fetching products:", error);
@@ -505,19 +510,25 @@ const AdminProducts: React.FC = () => {
                 <label className="block text-sm font-bold text-gray-700 mb-1">
                   Category
                 </label>
-                <select
+                <input
+                  type="text"
+                  list="category-suggestions"
+                  required
                   value={formData.category}
                   onChange={(e) =>
                     setFormData({ ...formData, category: e.target.value })
                   }
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
-                >
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat.id} value={cat.name}>
-                      {cat.name}
-                    </option>
+                  placeholder="Type or select a category"
+                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                />
+                <datalist id="category-suggestions">
+                  {existingCategories.map((cat, index) => (
+                    <option key={index} value={cat} />
                   ))}
-                </select>
+                </datalist>
+                <p className="text-xs text-gray-500 mt-1">
+                  Type a new category or select from existing ones
+                </p>
               </div>
 
               <div>

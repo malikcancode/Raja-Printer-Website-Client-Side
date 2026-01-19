@@ -34,6 +34,17 @@ interface ProductsResponse {
   message?: string;
 }
 
+interface CategoriesResponse {
+  success: boolean;
+  count: number;
+  data: Array<{
+    name: string;
+    count: number;
+    image: string;
+  }>;
+  message?: string;
+}
+
 interface ValidateProductsResponse {
   success: boolean;
   data: {
@@ -56,6 +67,14 @@ export const productAPI = {
       : "";
     const response = await apiClient.get<ProductsResponse>(
       `/products${queryString ? `?${queryString}` : ""}`,
+    );
+    return response.data;
+  },
+
+  // Get all categories
+  getCategories: async (): Promise<CategoriesResponse> => {
+    const response = await apiClient.get<CategoriesResponse>(
+      "/products/categories/list",
     );
     return response.data;
   },

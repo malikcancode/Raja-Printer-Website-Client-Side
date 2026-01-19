@@ -1,23 +1,51 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Hero from "../components/Hero";
 import Features from "../components/Features";
 import ProductCard from "../components/ProductCard";
-import { CATEGORIES, BANNERS, BRANDS, TESTIMONIALS } from "../constants";
+import { BANNERS, BRANDS, TESTIMONIALS } from "../constants";
 import { ArrowRight, ArrowUpRight, Star, Flame, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useShop } from "../context/ShopContext";
+import { productAPI } from "../apis/product";
 
 const Home: React.FC = () => {
   const { products } = useShop();
+  const [categories, setCategories] = useState<
+    Array<{ name: string; count: number; image: string }>
+  >([]);
+  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
-  // Get HOT/Trending products (products with isHot flag)
-  const hotProducts = products.filter((p) => p.isHot).slice(0, 6);
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const response = await productAPI.getCategories();
+      if (response.success) {
+        setCategories(response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    } finally {
+      setCategoriesLoading(false);
+    }
+  };
+
+  // Get HOT/Trending products (products with isHot flag or "Hot" tag)
+  const hotProducts = products
+    .filter(
+      (p) => p.isHot || p.tags?.some((tag) => tag.toLowerCase() === "hot"),
+    )
+    .slice(0, 4);
 
   // Get Special Offers (products with isSale flag)
   const saleProducts = products.filter((p) => p.isSale).slice(0, 6);
 
-  // Get top 4 products for home page display
-  const displayProducts = products.slice(0, 4);
+  // Get top 4 New products for home page display
+  const displayProducts = products
+    .filter((p) => p.tags?.some((tag) => tag.toLowerCase() === "new"))
+    .slice(0, 4);
 
   return (
     <div className="flex flex-col w-full relative">
@@ -52,26 +80,46 @@ const Home: React.FC = () => {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {CATEGORIES.map((cat) => (
-              <Link to="/shop" key={cat.id} className="group cursor-pointer">
-                <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-gray-50 border border-gray-100 group-hover:border-blue-200 group-hover:shadow-lg transition-all duration-500">
-                  <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 transition-colors z-10"></div>
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
-                  />
+          {categoriesLoading ? (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="aspect-square bg-gray-200 rounded-2xl mb-4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded w-1/2 mx-auto"></div>
                 </div>
-                <h3 className="font-bold text-gray-800 text-sm md:text-sm text-center group-hover:text-blue-600 transition-colors">
-                  {cat.name}
-                </h3>
-                <p className="text-gray-400 text-xs text-center mt-1">
-                  {cat.count} items
-                </p>
-              </Link>
-            ))}
-          </div>
+              ))}
+            </div>
+          ) : categories.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              No categories available
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+              {categories.map((cat, index) => (
+                <Link
+                  to={`/shop?category=${encodeURIComponent(cat.name)}`}
+                  key={index}
+                  className="group cursor-pointer"
+                >
+                  <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-gray-50 border border-gray-100 group-hover:border-blue-200 group-hover:shadow-lg transition-all duration-500">
+                    <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 transition-colors z-10"></div>
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
+                    />
+                  </div>
+                  <h3 className="font-bold text-gray-800 text-sm md:text-sm text-center group-hover:text-blue-600 transition-colors">
+                    {cat.name}
+                  </h3>
+                  <p className="text-gray-400 text-xs text-center mt-1">
+                    {cat.count} items
+                  </p>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -127,7 +175,7 @@ const Home: React.FC = () => {
               </p>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
               {hotProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, CartItem, User, Order, OrderStatus } from "../types";
 import { authAPI } from "../apis/auth";
 import { productAPI } from "../apis/product";
+import { getUnreadCount } from "../apis/notification";
 
 interface ShopContextType {
   products: Product[];
@@ -41,6 +42,9 @@ interface ShopContextType {
   orders: Order[];
   placeOrder: (orderData: Omit<Order, "id" | "date" | "status">) => void;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
+
+  notificationCount: number;
+  refreshNotifications: () => Promise<void>;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -65,6 +69,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
   });
   const [isAuthChecked, setIsAuthChecked] = useState(false);
   const [isCartInitialized, setIsCartInitialized] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   // Fetch products from API
   const refreshProducts = async () => {
@@ -258,6 +263,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
           email: user.email,
           name: user.name,
           isAdmin: user.role === "admin",
+          profilePicture: (user as any).profilePicture || "",
         };
         setUser(userData);
         localStorage.setItem("raja_user", JSON.stringify(userData));
@@ -384,6 +390,39 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
   );
   const cartCount = cart.reduce((count, item) => count + item.quantity, 0);
 
+  // Fetch notification count
+  const refreshNotifications = async () => {
+    if (!user) {
+      setNotificationCount(0);
+      return;
+    }
+
+    try {
+      const response = await getUnreadCount();
+      if (response.success) {
+        setNotificationCount(response.count);
+      }
+    } catch (error) {
+      console.error("Error fetching notification count:", error);
+    }
+  };
+
+  // Fetch notifications when user changes
+  useEffect(() => {
+    refreshNotifications();
+  }, [user]);
+
+  // Poll for new notifications every 30 seconds if user is logged in
+  useEffect(() => {
+    if (!user) return;
+
+    const interval = setInterval(() => {
+      refreshNotifications();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [user]);
+
   return (
     <ShopContext.Provider
       value={{
@@ -413,6 +452,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
         orders,
         placeOrder,
         updateOrderStatus,
+        notificationCount,
+        refreshNotifications,
       }}
     >
       {children}
