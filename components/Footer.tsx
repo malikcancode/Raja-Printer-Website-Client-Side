@@ -66,10 +66,7 @@ const Footer: React.FC = () => {
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-2xl tracking-tighter text-white leading-none">
-                  RAJA
-                </span>
-                <span className="text-[10px] font-bold tracking-[0.2em] text-gray-500 uppercase">
-                  Business Systems
+                  CopyTech.pk
                 </span>
               </div>
             </Link>

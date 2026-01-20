@@ -18,6 +18,7 @@ import {
   ShoppingBag,
   LogOut,
   Users,
+  Truck,
 } from "lucide-react";
 
 // Lazy load page components
@@ -40,6 +41,9 @@ const AdminDashboard = lazy(() => import("./pages/Admin/AdminDashboard"));
 const AdminProducts = lazy(() => import("./pages/Admin/AdminProducts"));
 const AdminOrders = lazy(() => import("./pages/Admin/AdminOrders"));
 const AdminUsers = lazy(() => import("./pages/Admin/AdminUsers"));
+const AdminShippingZones = lazy(
+  () => import("./pages/Admin/AdminShippingZones"),
+);
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -78,6 +82,7 @@ const AdminLayout = () => {
     { path: "/admin/products", label: "Products", icon: Package },
     { path: "/admin/orders", label: "Orders", icon: ShoppingBag },
     { path: "/admin/users", label: "Users", icon: Users },
+    { path: "/admin/shipping-zones", label: "Shipping Zones", icon: Truck },
   ];
 
   return (
@@ -85,9 +90,7 @@ const AdminLayout = () => {
       {/* Sidebar */}
       <aside className="w-64 bg-gray-900 text-white flex-col hidden lg:flex fixed h-full">
         <div className="p-6 border-b border-gray-800">
-          <span className="font-extrabold text-xl tracking-tighter">
-            RAJA ADMIN
-          </span>
+          <span className="font-bold text-xl">COPYTECH ADMIN</span>
         </div>
         <nav className="flex-1 p-4 space-y-2">
           {navItems.map((item) => (
@@ -200,6 +203,7 @@ const AppRoutes = () => {
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="shipping-zones" element={<AdminShippingZones />} />
         </Route>
 
         {/* Fallback */}

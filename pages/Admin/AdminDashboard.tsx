@@ -179,8 +179,8 @@ const AdminDashboard: React.FC = () => {
         await Promise.all([
           dashboardAPI.getStats(),
           dashboardAPI.getRevenueChart(chartPeriod),
-          dashboardAPI.getTopProducts(5),
-          dashboardAPI.getRecentOrders(5),
+          dashboardAPI.getTopProducts(3),
+          dashboardAPI.getRecentOrders(3),
           dashboardAPI.getSalesByCategory(),
         ]);
 

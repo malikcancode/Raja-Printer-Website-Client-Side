@@ -205,11 +205,9 @@ const Header: React.FC = () => {
                 </div>
                 <div className="flex flex-col">
                   <span className="font-extrabold text-2xl tracking-tighter text-gray-900 leading-none group-hover:text-blue-600 transition-colors">
-                    RAJA
+                    CopyTech
                   </span>
-                  <span className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase">
-                    Business Systems
-                  </span>
+                
                 </div>
               </Link>
             </div>

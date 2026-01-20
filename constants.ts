@@ -1,11 +1,6 @@
 import { Product, Category, Banner } from "./types";
 import { Truck, ShieldCheck, Clock, PenTool } from "lucide-react";
 
-export const ADMIN_CREDENTIALS = {
-  email: "admin@inventerdesignstudio.com",
-  password: "Malik@123#@!",
-};
-
 export const CATEGORIES: Category[] = [
   {
     id: "1",

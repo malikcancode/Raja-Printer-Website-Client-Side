@@ -8,7 +8,8 @@ import {
   Loader2,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { calculateShipping, createOrder } from "../apis/order";
+import { createOrder } from "../apis/order";
+import { calculateShipping, checkDeliveryAvailability } from "../apis/shipping";
 
 const Checkout: React.FC = () => {
   const { cart, cartTotal, clearCart } = useShop();
@@ -53,15 +54,15 @@ const Checkout: React.FC = () => {
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     setShippingInfo({ ...shippingInfo, [e.target.name]: e.target.value });
-    // Reset shipping calculation when country changes
-    if (e.target.name === "country") {
+    // Reset shipping calculation when city or country changes
+    if (e.target.name === "country" || e.target.name === "city") {
       setShippingCalculated(false);
     }
   };
 
   const handleCalculateShipping = async () => {
-    if (!shippingInfo.country) {
-      setError("Please select a country first");
+    if (!shippingInfo.country || !shippingInfo.city) {
+      setError("Please provide city and country");
       return;
     }
 
@@ -69,15 +70,41 @@ const Checkout: React.FC = () => {
     setError("");
 
     try {
+      // First check if delivery is available
+      const availabilityCheck = await checkDeliveryAvailability(
+        shippingInfo.city,
+        shippingInfo.country,
+      );
+
+      if (!availabilityCheck.available) {
+        setError(
+          availabilityCheck.message ||
+            "Delivery not available in this area. Please contact support.",
+        );
+        setCalculatingShipping(false);
+        return;
+      }
+
       const items = cart.map((item) => ({
         productId: (item as any)._id || item.id,
         quantity: item.quantity,
       }));
 
-      const result = await calculateShipping(items, shippingInfo.country);
+      const result = await calculateShipping(
+        items,
+        shippingInfo.city,
+        shippingInfo.country,
+      );
 
       if (result.success) {
-        setShippingCost(result.data);
+        // Map API response to expected format
+        setShippingCost({
+          ...result.data,
+          itemsPrice: result.data.subtotal,
+          shippingPrice: result.data.shippingCost,
+          taxPrice: 0,
+          totalPrice: result.data.total,
+        });
         setShippingCalculated(true);
       }
     } catch (err: any) {
@@ -99,6 +126,22 @@ const Checkout: React.FC = () => {
     setError("");
 
     try {
+      // Recheck zone availability before placing order
+      const availabilityCheck = await checkDeliveryAvailability(
+        shippingInfo.city,
+        shippingInfo.country,
+      );
+
+      if (!availabilityCheck.available) {
+        setError(
+          "Delivery service has been temporarily disabled for this area. Please select a different city or try again later.",
+        );
+        setShippingCalculated(false); // Reset to force recalculation
+        setLoading(false);
+        setStep("shipping"); // Go back to shipping step
+        return;
+      }
+
       const items = cart.map((item) => ({
         productId: (item as any)._id || item.id,
         quantity: item.quantity,
@@ -114,6 +157,19 @@ const Checkout: React.FC = () => {
           addressLine2: shippingInfo.addressLine2,
           state: shippingInfo.state,
         },
+        shippingDetails: {
+          zoneId: shippingCost.zoneId,
+          zoneName: shippingCost.zoneName,
+          deliveryTime: shippingCost.deliveryTime,
+          totalWeight: shippingCost.totalWeight,
+          baseShippingPrice: shippingCost.basePrice,
+          extraWeightCharge: shippingCost.extraWeightCharge,
+          freeShippingApplied: shippingCost.freeShippingApplied,
+          shippingMessage: shippingCost.shippingMessage,
+        },
+        itemsPrice: shippingCost.itemsPrice,
+        shippingPrice: shippingCost.shippingPrice,
+        totalPrice: shippingCost.totalPrice,
         customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
         customerEmail: shippingInfo.email,
         customerPhone: shippingInfo.phone,
@@ -130,6 +186,15 @@ const Checkout: React.FC = () => {
       }
     } catch (err: any) {
       setError(err.message || "Failed to create order");
+      // If it's a zone-related error, go back to shipping step
+      if (
+        err.message?.toLowerCase().includes("delivery") ||
+        err.message?.toLowerCase().includes("zone") ||
+        err.message?.toLowerCase().includes("area")
+      ) {
+        setStep("shipping");
+        setShippingCalculated(false);
+      }
     } finally {
       setLoading(false);
     }
@@ -303,9 +368,10 @@ const Checkout: React.FC = () => {
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-gray-700">
-                      State/Province (Optional)
+                      State/Province
                     </label>
                     <input
+                      required
                       name="state"
                       value={shippingInfo.state}
                       onChange={handleInputChange}
@@ -414,7 +480,24 @@ const Checkout: React.FC = () => {
                 <div className="mt-8 flex justify-end">
                   <button
                     type="button"
-                    onClick={() => setStep("payment")}
+                    onClick={() => {
+                      // Validate all required fields before proceeding
+                      if (
+                        !shippingInfo.firstName ||
+                        !shippingInfo.lastName ||
+                        !shippingInfo.email ||
+                        !shippingInfo.address ||
+                        !shippingInfo.city ||
+                        !shippingInfo.state ||
+                        !shippingInfo.zipCode ||
+                        !shippingInfo.country ||
+                        !shippingInfo.phone
+                      ) {
+                        setError("Please fill in all required fields");
+                        return;
+                      }
+                      setStep("payment");
+                    }}
                     disabled={!shippingCalculated}
                     className="px-8 py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >

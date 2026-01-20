@@ -1,37 +1,40 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Raja Business Systems - Office Automation & Printing Solutions</title>
+    <title>CopyTech.pk</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              poppins: ['Poppins', 'sans-serif'],
+              poppins: ["Poppins", "sans-serif"],
             },
             animation: {
-              marquee: 'marquee 30s linear infinite',
+              marquee: "marquee 30s linear infinite",
             },
             keyframes: {
               marquee: {
-                '0%': { transform: 'translateX(0)' },
-                '100%': { transform: 'translateX(-50%)' },
-              }
+                "0%": { transform: "translateX(0)" },
+                "100%": { transform: "translateX(-50%)" },
+              },
             },
             boxShadow: {
-              'blue-glow': '0 0 20px rgba(37, 99, 235, 0.5)',
-            }
-          }
-        }
-      }
+              "blue-glow": "0 0 20px rgba(37, 99, 235, 0.5)",
+            },
+          },
+        },
+      };
     </script>
     <style>
       body {
-        font-family: 'Poppins', sans-serif;
+        font-family: "Poppins", sans-serif;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
       }
@@ -50,7 +53,7 @@
         background: #94a3b8;
       }
     </style>
-</head>
+  </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
