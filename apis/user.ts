@@ -27,6 +27,25 @@ export interface DeleteUserResponse {
   message: string;
 }
 
+export interface UpdateProfileData {
+  name: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
+export interface UpdateProfileResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    profilePicture: string;
+    isAdmin: boolean;
+  };
+}
+
 export const userAPI = {
   // Get all users (Admin only)
   getAllUsers: async (): Promise<User[]> => {
@@ -45,6 +64,17 @@ export const userAPI = {
   // Delete user (Admin only)
   deleteUser: async (userId: string): Promise<void> => {
     await apiClient.delete<DeleteUserResponse>(`/auth/users/${userId}`);
+  },
+
+  // Update profile (name and password)
+  updateProfile: async (
+    data: UpdateProfileData,
+  ): Promise<UpdateProfileResponse> => {
+    const response = await apiClient.put<UpdateProfileResponse>(
+      "/auth/profile",
+      data,
+    );
+    return response.data;
   },
 };
 

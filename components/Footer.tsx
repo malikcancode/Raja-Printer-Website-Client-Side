@@ -262,8 +262,10 @@ const Footer: React.FC = () => {
               <span className="block text-xs font-bold text-gray-500 uppercase">
                 Visit Us
               </span>
-              <span className="text-white font-medium text-sm">
-                Saddar, Rawalpindi
+              <span className="text-white font-medium text-sm leading-relaxed">
+                G 1 & 2, Souvenir Arcade, High court Road,
+                <br />
+                Near Gulraiz gate 2, Rawalpindi
               </span>
             </div>
           </div>

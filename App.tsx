@@ -19,6 +19,7 @@ import {
   LogOut,
   Users,
   Truck,
+  UserCog,
 } from "lucide-react";
 
 // Lazy load page components
@@ -44,6 +45,7 @@ const AdminUsers = lazy(() => import("./pages/Admin/AdminUsers"));
 const AdminShippingZones = lazy(
   () => import("./pages/Admin/AdminShippingZones"),
 );
+const AdminProfile = lazy(() => import("./pages/Admin/AdminProfile"));
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -82,6 +84,7 @@ const AdminLayout = () => {
     { path: "/admin/products", label: "Products", icon: Package },
     { path: "/admin/orders", label: "Orders", icon: ShoppingBag },
     { path: "/admin/users", label: "Users", icon: Users },
+    { path: "/admin/profile", label: "Profile", icon: UserCog },
     { path: "/admin/shipping-zones", label: "Shipping Zones", icon: Truck },
   ];
 
@@ -203,6 +206,7 @@ const AppRoutes = () => {
           <Route path="products" element={<AdminProducts />} />
           <Route path="orders" element={<AdminOrders />} />
           <Route path="users" element={<AdminUsers />} />
+          <Route path="profile" element={<AdminProfile />} />
           <Route path="shipping-zones" element={<AdminShippingZones />} />
         </Route>
 

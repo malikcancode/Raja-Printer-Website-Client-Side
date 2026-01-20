@@ -38,10 +38,11 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Only redirect to login if it's not a login/register request
+      // Only redirect to login if it's not a login/register/profile request
       const isAuthRequest =
         error.config?.url?.includes("/auth/login") ||
-        error.config?.url?.includes("/auth/register");
+        error.config?.url?.includes("/auth/register") ||
+        error.config?.url?.includes("/auth/profile");
 
       if (!isAuthRequest) {
         // Clear auth data on unauthorized

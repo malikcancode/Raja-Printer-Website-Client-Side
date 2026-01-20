@@ -22,6 +22,7 @@ interface ShopContextType {
   cartCount: number;
 
   user: User | null;
+  setUser: React.Dispatch<React.SetStateAction<User | null>>;
   login: (
     email: string,
     pass: string,
@@ -441,6 +442,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({
         cartTotal,
         cartCount,
         user,
+        setUser,
         login,
         register,
         logout,
