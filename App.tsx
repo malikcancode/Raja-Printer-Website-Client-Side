@@ -142,7 +142,7 @@ const PublicLayout = () => {
       <Footer />
       {/* WhatsApp Floating Button */}
       <a
-        href="https://wa.me/923215845098"
+        href="https://wa.me/923175223143"
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-8 right-8 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:shadow-green-500/30 transition-all transform hover:-translate-y-1 hover:scale-110 flex items-center justify-center group"

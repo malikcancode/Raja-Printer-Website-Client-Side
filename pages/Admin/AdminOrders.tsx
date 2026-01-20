@@ -12,6 +12,7 @@ import {
   Loader2,
   RefreshCw,
   Trash2,
+  Printer,
 } from "lucide-react";
 import {
   getAllOrders,
@@ -151,6 +152,304 @@ const AdminOrders: React.FC = () => {
     return <Icon size={16} />;
   };
 
+  const handlePrintOrder = (order: ApiOrder) => {
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const printContent = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Order ${order.orderNumber || order._id.slice(-8).toUpperCase()} - Print</title>
+          <style>
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+            }
+            body {
+              font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+              padding: 40px;
+              color: #1f2937;
+              line-height: 1.6;
+            }
+            .header {
+              text-align: center;
+              border-bottom: 3px solid #2563eb;
+              padding-bottom: 20px;
+              margin-bottom: 30px;
+            }
+            .header h1 {
+              font-size: 32px;
+              color: #1e40af;
+              margin-bottom: 10px;
+            }
+            .header p {
+              color: #6b7280;
+              font-size: 14px;
+              max-width: 600px;
+              margin: 0 auto;
+            }
+            .order-info {
+              background: #f3f4f6;
+              padding: 15px;
+              border-radius: 8px;
+              margin-bottom: 25px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }
+            .order-info div {
+              font-size: 14px;
+            }
+            .order-info strong {
+              color: #1f2937;
+            }
+            .section {
+              margin-bottom: 30px;
+            }
+            .section-title {
+              font-size: 18px;
+              font-weight: bold;
+              color: #1f2937;
+              margin-bottom: 15px;
+              padding-bottom: 8px;
+              border-bottom: 2px solid #e5e7eb;
+            }
+            .info-grid {
+              display: grid;
+              grid-template-columns: repeat(2, 1fr);
+              gap: 20px;
+              margin-bottom: 20px;
+            }
+            .info-box {
+              background: #f9fafb;
+              padding: 15px;
+              border-radius: 6px;
+              border: 1px solid #e5e7eb;
+            }
+            .info-box h4 {
+              font-size: 14px;
+              color: #6b7280;
+              margin-bottom: 8px;
+            }
+            .info-box p {
+              font-size: 13px;
+              margin-bottom: 4px;
+            }
+            .items-table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 15px;
+            }
+            .items-table th,
+            .items-table td {
+              padding: 12px;
+              text-align: left;
+              border-bottom: 1px solid #e5e7eb;
+            }
+            .items-table th {
+              background: #f3f4f6;
+              font-weight: bold;
+              font-size: 13px;
+              color: #374151;
+            }
+            .items-table td {
+              font-size: 13px;
+            }
+            .items-table tr:last-child td {
+              border-bottom: none;
+            }
+            .pricing-summary {
+              margin-top: 20px;
+              margin-left: auto;
+              width: 350px;
+              background: #f9fafb;
+              padding: 20px;
+              border-radius: 8px;
+              border: 1px solid #e5e7eb;
+            }
+            .pricing-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 8px 0;
+              font-size: 14px;
+            }
+            .pricing-row.total {
+              border-top: 2px solid #2563eb;
+              margin-top: 10px;
+              padding-top: 15px;
+              font-size: 18px;
+              font-weight: bold;
+              color: #1e40af;
+            }
+            .status-badge {
+              display: inline-block;
+              padding: 4px 12px;
+              border-radius: 20px;
+              font-size: 12px;
+              font-weight: bold;
+              text-transform: uppercase;
+            }
+            .status-pending { background: #fef3c7; color: #92400e; }
+            .status-processing { background: #dbeafe; color: #1e40af; }
+            .status-shipped { background: #e9d5ff; color: #6b21a8; }
+            .status-delivered { background: #d1fae5; color: #065f46; }
+            .status-cancelled { background: #fee2e2; color: #991b1b; }
+            .footer {
+              margin-top: 40px;
+              padding-top: 20px;
+              border-top: 2px solid #e5e7eb;
+              text-align: center;
+              color: #6b7280;
+              font-size: 12px;
+            }
+            @media print {
+              body {
+                padding: 20px;
+              }
+              .no-print {
+                display: none;
+              }
+            }
+            .print-button {
+              position: fixed;
+              top: 20px;
+              right: 20px;
+              padding: 12px 24px;
+              background: #2563eb;
+              color: white;
+              border: none;
+              border-radius: 8px;
+              font-size: 14px;
+              font-weight: bold;
+              cursor: pointer;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            .print-button:hover {
+              background: #1e40af;
+            }
+          </style>
+        </head>
+        <body>
+          <button class="print-button no-print" onclick="window.print()">🖨️ Print Order</button>
+
+          <div class="header">
+            <h1>CopyTech</h1>
+            <p>Your trusted partner for premium printing solutions. We deliver quality products with exceptional service, ensuring your printing needs are met with professionalism and care.</p>
+          </div>
+
+          <div class="order-info">
+            <div>
+              <strong>Order Number:</strong> ${order.orderNumber || order._id.slice(-8).toUpperCase()}
+            </div>
+            <div>
+              <strong>Order Date:</strong> ${new Date(order.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}
+            </div>
+            <div>
+              <strong>Status:</strong> 
+              <span class="status-badge status-${order.status.toLowerCase()}">
+                ${order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              </span>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-box">
+              <h4>Customer Information</h4>
+              <p><strong>Name:</strong> ${order.customerName}</p>
+              <p><strong>Email:</strong> ${order.customerEmail}</p>
+              ${order.customerPhone ? `<p><strong>Phone:</strong> ${order.customerPhone}</p>` : ""}
+            </div>
+
+            <div class="info-box">
+              <h4>Shipping Address</h4>
+              <p>${order.shippingAddress.addressLine1}</p>
+              ${order.shippingAddress.addressLine2 ? `<p>${order.shippingAddress.addressLine2}</p>` : ""}
+              <p>${order.shippingAddress.city}${order.shippingAddress.state ? `, ${order.shippingAddress.state}` : ""}</p>
+              <p>${order.shippingAddress.zipCode}, ${order.shippingAddress.country}</p>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="section-title">Order Items</div>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Unit Price</th>
+                  <th>Weight</th>
+                  <th>Shipping</th>
+                  <th style="text-align: right;">Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items
+                  .map(
+                    (item) => `
+                  <tr>
+                    <td><strong>${item.name}</strong></td>
+                    <td>${item.quantity}</td>
+                    <td>PKR ${item.price.toLocaleString()}</td>
+                    <td>${item.weight} kg</td>
+                    <td>PKR ${item.shippingCost.toLocaleString()}</td>
+                    <td style="text-align: right;"><strong>PKR ${(item.price * item.quantity).toLocaleString()}</strong></td>
+                  </tr>
+                `,
+                  )
+                  .join("")}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pricing-summary">
+            <div class="pricing-row">
+              <span>Items Total:</span>
+              <span><strong>PKR ${order.itemsPrice.toLocaleString()}</strong></span>
+            </div>
+            <div class="pricing-row">
+              <span>Shipping Cost:</span>
+              <span style="color: #2563eb;"><strong>PKR ${order.shippingPrice.toLocaleString()}</strong></span>
+            </div>
+            ${
+              order.taxPrice > 0
+                ? `
+            <div class="pricing-row">
+              <span>Tax:</span>
+              <span><strong>PKR ${order.taxPrice.toLocaleString()}</strong></span>
+            </div>
+            `
+                : ""
+            }
+            <div class="pricing-row total">
+              <span>Total Amount:</span>
+              <span>PKR ${order.totalPrice.toLocaleString()}</span>
+            </div>
+          </div>
+
+          <div class="section" style="margin-top: 40px;">
+            <div class="info-box">
+              <h4>Payment Information</h4>
+              <p><strong>Payment Method:</strong> ${order.paymentMethod === "card" ? "Cash on Delivery" : order.paymentMethod.toUpperCase()}</p>
+              <p><strong>Payment Status:</strong> ${order.isPaid ? "Paid" : "Pending Payment"}</p>
+              <p><strong>Delivery Status:</strong> ${order.isDelivered ? "Delivered" : "Pending Delivery"}</p>
+            </div>
+          </div>
+
+          <div class="footer">
+            <p><strong>Printer Solutions Pro</strong></p>
+            <p>Thank you for your business! For any questions or concerns, please contact our support team.</p>
+            <p style="margin-top: 10px;">This is a computer-generated invoice and does not require a signature.</p>
+          </div>
+        </body>
+      </html>
+    `;
+
+    printWindow.document.write(printContent);
+    printWindow.document.close();
+  };
+
   return (
     <div className="p-6">
       <div className="mb-6">
@@ -271,6 +570,13 @@ const AdminOrders: React.FC = () => {
                         >
                           <Eye size={16} />
                           View
+                        </button>
+                        <button
+                          onClick={() => handlePrintOrder(order)}
+                          className="text-green-600 hover:text-green-800 font-bold flex items-center gap-1"
+                        >
+                          <Printer size={16} />
+                          Print
                         </button>
                         {deleteConfirmId === order._id ? (
                           <div className="flex items-center gap-2">

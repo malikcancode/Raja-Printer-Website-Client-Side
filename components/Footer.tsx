@@ -271,8 +271,8 @@ const Footer: React.FC = () => {
 
         {/* Copyright */}
         <div className="py-6 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
-          <p>© 2026 Raja Business Systems. All Rights Reserved.</p>
-          <div className="flex gap-4">
+          <p>© 2026 CopyTech.pk . All Rights Reserved.</p>
+          {/* <div className="flex gap-4">
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
               alt="Visa"
@@ -288,7 +288,7 @@ const Footer: React.FC = () => {
               alt="Mastercard"
               className="h-4 opacity-50 grayscale hover:grayscale-0 transition-all"
             />
-          </div>
+          </div> */}
         </div>
       </div>
     </footer>
