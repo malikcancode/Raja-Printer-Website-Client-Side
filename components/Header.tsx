@@ -32,6 +32,7 @@ const Header: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
   const [notificationsLoading, setNotificationsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const {
     cartCount,
     user,
@@ -144,6 +145,14 @@ const Header: React.FC = () => {
     return date.toLocaleDateString();
   };
 
+  const handleSearch = (e?: React.FormEvent | React.KeyboardEvent) => {
+    if (e) e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      setIsMenuOpen(false); // close mobile menu if open
+    }
+  };
+
   return (
     <header
       className={`w-full z-50 transition-all duration-300 ${isScrolled ? "fixed top-0 bg-white/95 backdrop-blur-md shadow-md" : "relative bg-white shadow-sm"}`}
@@ -243,14 +252,24 @@ const Header: React.FC = () => {
             <div className="flex items-center gap-4 lg:gap-6">
               {/* Search Bar - Desktop */}
               <div className="hidden xl:flex relative group">
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="w-64 pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm outline-none focus:border-blue-600 focus:bg-white transition-all focus:w-72 focus:shadow-md"
-                />
-                <button className="absolute right-0 top-0 h-full px-4 text-gray-400 hover:text-blue-600 transition-colors">
-                  <Search size={18} />
-                </button>
+                <form onSubmit={handleSearch} className="w-full flex">
+                  <input
+                    type="text"
+                    placeholder="Search products..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") handleSearch(e);
+                    }}
+                    className="w-64 pl-4 pr-10 py-2.5 bg-gray-50 border border-gray-200 rounded-full text-sm outline-none focus:border-blue-600 focus:bg-white transition-all focus:w-72 focus:shadow-md"
+                  />
+                  <button
+                    type="submit"
+                    className="absolute right-0 top-0 h-full px-4 text-gray-400 hover:text-blue-600 transition-colors"
+                  >
+                    <Search size={18} />
+                  </button>
+                </form>
               </div>
 
               {/* Icons */}
@@ -443,16 +462,27 @@ const Header: React.FC = () => {
 
           {/* Mobile Search Bar */}
           <div className="mt-3 sm:mt-4 lg:hidden relative pb-1">
-            <div className="flex w-full bg-gray-50 border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-100 transition-all shadow-sm">
+            <form
+              onSubmit={handleSearch}
+              className="flex w-full bg-gray-50 border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-100 transition-all shadow-sm"
+            >
               <input
                 type="text"
                 placeholder="Search for printers, toners..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSearch(e);
+                }}
                 className="flex-1 px-4 py-2.5 bg-transparent outline-none text-sm placeholder-gray-400"
               />
-              <button className="px-4 text-gray-500 hover:text-blue-600 border-l border-gray-200 bg-white">
+              <button
+                type="submit"
+                className="px-4 text-gray-500 hover:text-blue-600 border-l border-gray-200 bg-white"
+              >
                 <Search size={20} />
               </button>
-            </div>
+            </form>
           </div>
         </div>
       </div>

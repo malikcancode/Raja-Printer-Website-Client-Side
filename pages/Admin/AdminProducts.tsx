@@ -621,7 +621,13 @@ const AdminProducts: React.FC = () => {
                       ...formData,
                       tags: e.target.value
                         .split(",")
-                        .map((t) => t.trim())
+                        .map((t) => {
+                          const trimmed = t.trim();
+                          return trimmed
+                            ? trimmed.charAt(0).toUpperCase() +
+                                trimmed.slice(1).toLowerCase()
+                            : "";
+                        })
                         .filter(Boolean),
                     })
                   }

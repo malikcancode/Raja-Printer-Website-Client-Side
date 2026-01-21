@@ -135,25 +135,50 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         {/* Tags */}
         {product.tags && (
           <div className="flex flex-wrap gap-1 mb-3">
-            {product.tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-gray-100 text-gray-700 px-2 py-1 rounded text-[10px] flex items-center gap-0.5"
-              >
-                <Check size={10} className="text-green-500" /> {tag}
-              </span>
-            ))}
+            {product.tags.map((tag) => {
+              const tagLower = tag.toLowerCase();
+              let tagStyles = "bg-gray-100 text-gray-700";
+              let iconColor = "text-green-500";
+
+              if (tagLower === "hot") {
+                tagStyles = "bg-red-500 text-white";
+                iconColor = "text-white";
+              } else if (tagLower === "new") {
+                tagStyles = "bg-blue-500 text-white";
+                iconColor = "text-white";
+              } else if (tagLower === "sale") {
+                tagStyles = "bg-green-500 text-white";
+                iconColor = "text-white";
+              }
+
+              return (
+                <span
+                  key={tag}
+                  className={`${tagStyles} px-2 py-1 rounded text-xs flex items-center gap-0.5`}
+                >
+                  <Check size={10} className={iconColor} /> {tag}
+                </span>
+              );
+            })}
           </div>
         )}
 
         <div className="mt-auto pt-3 border-t border-gray-50 flex items-end justify-between">
           <div>
-            {/* {product.originalPrice && (
-              <span className="block text-xs text-gray-400 line-through mb-0.5">PKR {product.originalPrice.toLocaleString()}</span>
-            )} */}
-            <span className="text-base md:text-lg font-extrabold text-gray-900 text-blue-600">
-              PKR {product.price.toLocaleString()}
-            </span>
+            {product.originalPrice && product.originalPrice > 0 ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-red-500 line-through font-medium">
+                  PKR {product.originalPrice.toLocaleString()}
+                </span>
+                <span className="text-base md:text-lg font-extrabold text-gray-900 text-blue-600">
+                  PKR {product.price.toLocaleString()}
+                </span>
+              </div>
+            ) : (
+              <span className="text-base md:text-lg font-extrabold text-gray-900 text-blue-600">
+                PKR {product.price.toLocaleString()}
+              </span>
+            )}
             <div className="mt-1">
               <span
                 className={`inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full ${
