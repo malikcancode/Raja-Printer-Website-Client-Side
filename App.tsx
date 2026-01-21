@@ -185,6 +185,17 @@ const PublicLayout = () => {
 };
 
 const AppRoutes = () => {
+  const { user } = useShop();
+  const location = useLocation();
+
+  // Auto-redirect based on user role when app loads
+  React.useEffect(() => {
+    if (user && user.isAdmin && !location.pathname.startsWith("/admin")) {
+      // Admin logged in but not on admin route - redirect to admin dashboard
+      window.location.hash = "#/admin";
+    }
+  }, [user, location.pathname]);
+
   return (
     <Suspense fallback={<Loader />}>
       <Routes>
