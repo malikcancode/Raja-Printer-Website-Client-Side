@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useState } from "react";
 import {
   HashRouter as Router,
   Routes,
@@ -10,6 +10,7 @@ import {
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
+import QuoteModal from "./components/QuoteModal";
 import { ShopProvider, useShop } from "./context/ShopContext";
 import {
   MessageCircle,
@@ -20,6 +21,7 @@ import {
   Users,
   Truck,
   UserCog,
+  FileText,
 } from "lucide-react";
 
 // Lazy load page components
@@ -136,6 +138,8 @@ const AdminLayout = () => {
 
 // Public Layout Component
 const PublicLayout = () => {
+  const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
+
   return (
     <>
       <Header />
@@ -143,6 +147,26 @@ const PublicLayout = () => {
         <Outlet />
       </main>
       <Footer />
+
+      {/* Quote Modal */}
+      <QuoteModal
+        isOpen={isQuoteModalOpen}
+        onClose={() => setIsQuoteModalOpen(false)}
+      />
+
+      {/* Get Quote Floating Button - Above WhatsApp */}
+      <button
+        onClick={() => setIsQuoteModalOpen(true)}
+        className="fixed bottom-32 right-8 z-40 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-4 rounded-full shadow-2xl hover:shadow-blue-500/30 transition-all transform hover:-translate-y-1 hover:scale-110 flex items-center justify-center gap-2 group"
+        title="Request a Quote"
+      >
+        <FileText size={24} />
+        <span className="font-bold text-sm hidden md:inline">Get Quote</span>
+        <span className="absolute right-full mr-3 bg-white text-gray-900 text-xs font-bold px-3 py-1.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:hidden">
+          Request Quote
+        </span>
+      </button>
+
       {/* WhatsApp Floating Button */}
       <a
         href="https://wa.me/923175223143"
