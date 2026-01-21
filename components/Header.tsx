@@ -207,7 +207,6 @@ const Header: React.FC = () => {
                   <span className="font-extrabold text-2xl tracking-tighter text-gray-900 leading-none group-hover:text-blue-600 transition-colors">
                     CopyTech
                   </span>
-                
                 </div>
               </Link>
             </div>
@@ -443,7 +442,7 @@ const Header: React.FC = () => {
           </div>
 
           {/* Mobile Search Bar */}
-          <div className="mt-4 lg:hidden relative pb-2">
+          <div className="mt-3 sm:mt-4 lg:hidden relative pb-1">
             <div className="flex w-full bg-gray-50 border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-100 transition-all shadow-sm">
               <input
                 type="text"
@@ -460,61 +459,78 @@ const Header: React.FC = () => {
 
       {/* Mobile Menu Dropdown */}
       {isMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-white shadow-2xl border-t border-gray-100 py-6 px-6 flex flex-col space-y-4 animate-in slide-in-from-top-5 duration-200 h-screen z-50">
-          <Link
-            to="/"
-            className="text-lg font-bold text-blue-600 border-b border-gray-100 pb-2"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Home
-          </Link>
-          <Link
-            to="/shop"
-            className="text-lg font-medium text-gray-700 hover:text-blue-600"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Shop
-          </Link>
-          <Link
-            to="/about"
-            className="text-lg font-medium text-gray-700 hover:text-blue-600"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            About Us
-          </Link>
-          <Link
-            to="/contact"
-            className="text-lg font-medium text-gray-700 hover:text-blue-600"
-            onClick={() => setIsMenuOpen(false)}
-          >
-            Contact Us
-          </Link>
+        <div className="lg:hidden absolute top-full left-0 w-full bg-gradient-to-b from-white to-gray-50 shadow-2xl border-t border-gray-100 animate-in slide-in-from-top-5 duration-200 max-h-[calc(100vh-80px)] z-50 overflow-y-auto pb-6">
+          <div className="px-4 py-5 space-y-2">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+              Navigation
+            </p>
+            <Link
+              to="/"
+              className="flex items-center px-4 py-3 text-base font-semibold text-blue-600 bg-blue-50 rounded-lg transition-all"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Home
+            </Link>
+            <Link
+              to="/shop"
+              className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Shop
+            </Link>
+            <Link
+              to="/about"
+              className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              About Us
+            </Link>
+            <Link
+              to="/contact"
+              className="flex items-center px-4 py-3 text-base font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-all"
+              onClick={() => setIsMenuOpen(false)}
+            >
+              Contact Us
+            </Link>
+          </div>
 
           {!user ? (
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="px-4 py-4 space-y-3 border-t border-gray-200">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                Account
+              </p>
               <Link
                 to="/login"
-                className="text-center py-2 border border-gray-300 rounded-lg text-gray-700 font-medium"
+                className="flex items-center justify-center py-3 border-2 border-blue-600 rounded-lg text-blue-600 font-bold hover:bg-blue-50 transition-all"
                 onClick={() => setIsMenuOpen(false)}
               >
-                Login
+                <User size={18} className="mr-2" /> Login
               </Link>
               <Link
                 to="/register"
-                className="text-center py-2 bg-blue-600 text-white rounded-lg font-medium"
+                className="flex items-center justify-center py-3 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700 transition-all shadow-lg shadow-blue-200"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Sign Up
               </Link>
             </div>
           ) : (
-            <div className="mt-4 border-t border-gray-100 pt-4">
-              <p className="text-gray-500 text-sm mb-2">
-                Logged in as {user.name}
+            <div className="px-4 py-4 border-t border-gray-200 space-y-3">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                Account
               </p>
+              <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                <p className="text-xs text-gray-500 mb-1">Signed in as</p>
+                <p className="text-sm font-bold text-gray-900 truncate">
+                  {user.name}
+                </p>
+                <p className="text-xs text-blue-600 font-medium">
+                  {user.email}
+                </p>
+              </div>
               <Link
                 to="/profile"
-                className="text-blue-600 font-bold flex items-center gap-2 mb-3"
+                className="flex items-center gap-3 px-4 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-all shadow-md"
                 onClick={() => setIsMenuOpen(false)}
               >
                 <User size={18} /> My Profile
@@ -522,7 +538,7 @@ const Header: React.FC = () => {
               {user.isAdmin && (
                 <Link
                   to="/admin"
-                  className="text-blue-600 font-bold flex items-center gap-2 mb-3"
+                  className="flex items-center gap-3 px-4 py-3 bg-gray-900 text-white font-semibold rounded-lg hover:bg-gray-800 transition-all shadow-md"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <LayoutDashboard size={18} /> Admin Dashboard
@@ -533,22 +549,41 @@ const Header: React.FC = () => {
                   logout();
                   setIsMenuOpen(false);
                 }}
-                className="text-red-600 font-medium flex items-center gap-2"
+                className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-red-50 text-red-600 font-semibold rounded-lg hover:bg-red-100 border border-red-200 transition-all"
               >
                 <LogOut size={18} /> Sign Out
               </button>
             </div>
           )}
 
-          <div className="bg-gray-50 p-4 rounded-lg mt-auto mb-20">
-            <p className="text-sm font-bold text-gray-900 mb-1">Need help?</p>
-            <p className="text-sm text-gray-500 mb-3">Call our support line</p>
-            <a
-              href="tel:03175223143"
-              className="flex items-center text-blue-600 font-bold text-lg"
-            >
-              <Phone size={18} className="mr-2" /> 0317-5223143
-            </a>
+          <div className="px-4 py-4 mt-6 pb-6">
+            <div className="bg-gradient-to-br from-blue-600 to-blue-700 p-5 rounded-xl shadow-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-white/20 rounded-lg">
+                  <Phone size={20} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-white text-xs font-medium opacity-90">
+                    Need Help?
+                  </p>
+                  <p className="text-white text-sm font-bold">Call Support</p>
+                </div>
+              </div>
+              <a
+                href="tel:03175223143"
+                className="flex items-center justify-center gap-2 mt-4 px-4 py-3 bg-white text-blue-600 font-bold text-base rounded-lg hover:bg-blue-50 transition-all shadow-md"
+              >
+                <Phone size={18} /> 0317-5223143
+              </a>
+              <a
+                href="https://wa.me/923175223143"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 mt-2 px-4 py-2.5 bg-[#25D366] text-white font-semibold text-sm rounded-lg hover:bg-[#20BD5C] transition-all"
+              >
+                WhatsApp Support
+              </a>
+            </div>
           </div>
         </div>
       )}

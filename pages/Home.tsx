@@ -52,12 +52,12 @@ const Home: React.FC = () => {
       <Hero />
 
       {/* Features - Floating Over Hero/Content */}
-      <div className="container mx-auto px-4 relative z-20">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-20 mt-4 sm:mt-0">
         <Features />
       </div>
 
       {/* Categories Grid */}
-      <section className="py-20 bg-white relative z-10">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white relative z-10">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-end mb-12">
             <div>
@@ -95,14 +95,14 @@ const Home: React.FC = () => {
               No categories available
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 sm:gap-6">
               {categories.map((cat, index) => (
                 <Link
                   to={`/shop?category=${encodeURIComponent(cat.name)}`}
                   key={index}
                   className="group cursor-pointer"
                 >
-                  <div className="relative rounded-2xl overflow-hidden mb-4 aspect-square bg-gray-50 border border-gray-100 group-hover:border-blue-200 group-hover:shadow-lg transition-all duration-500">
+                  <div className="relative rounded-xl sm:rounded-2xl overflow-hidden mb-3 sm:mb-4 aspect-square bg-gray-50 border border-gray-100 group-hover:border-blue-200 group-hover:shadow-lg transition-all duration-500">
                     <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/5 transition-colors z-10"></div>
                     <img
                       src={cat.image}
@@ -110,10 +110,10 @@ const Home: React.FC = () => {
                       className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700"
                     />
                   </div>
-                  <h3 className="font-bold text-gray-800 text-sm md:text-sm text-center group-hover:text-blue-600 transition-colors">
+                  <h3 className="font-bold text-gray-800 text-xs sm:text-sm text-center group-hover:text-blue-600 transition-colors">
                     {cat.name}
                   </h3>
-                  <p className="text-gray-400 text-xs text-center mt-1">
+                  <p className="text-gray-400 text-[10px] sm:text-xs text-center mt-1">
                     {cat.count} items
                   </p>
                 </Link>
@@ -124,8 +124,8 @@ const Home: React.FC = () => {
       </section>
 
       {/* Featured Products */}
-      <section className="py-20 bg-gray-50 relative z-10">
-        <div className="container mx-auto px-4">
+      <section className="py-12 sm:py-16 lg:py-20 bg-gray-50 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-12">
             <span className="text-blue-600 font-bold uppercase tracking-widest text-xs mb-3 block">
               Top Sellers
@@ -158,9 +158,9 @@ const Home: React.FC = () => {
 
       {/* HOT / Trending Products Section */}
       {hotProducts.length > 0 && (
-        <section className="py-20 bg-gradient-to-br from-orange-50 to-red-50 relative z-10 overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-orange-200/30 rounded-full blur-3xl"></div>
-          <div className="container mx-auto px-4 relative z-10">
+        <section className="py-12 sm:py-16 lg:py-20 bg-gradient-to-br from-orange-50 to-red-50 relative z-10 overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 sm:w-64 sm:h-64 bg-orange-200/30 rounded-full blur-3xl"></div>
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full font-bold uppercase tracking-widest text-xs mb-4">
                 <Flame size={16} className="animate-pulse" />
@@ -195,8 +195,8 @@ const Home: React.FC = () => {
 
       {/* Special Offers / Bundle Offers Section */}
       {saleProducts.length > 0 && (
-        <section className="py-20 bg-white relative z-10">
-          <div className="container mx-auto px-4">
+        <section className="py-12 sm:py-16 lg:py-20 bg-white relative z-10">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center max-w-2xl mx-auto mb-12">
               <div className="inline-flex items-center gap-2 bg-gradient-to-r from-green-500 to-emerald-500 text-white px-4 py-2 rounded-full font-bold uppercase tracking-widest text-xs mb-4">
                 <Tag size={16} />
@@ -230,8 +230,8 @@ const Home: React.FC = () => {
       )}
 
       {/* Trusted Brands */}
-      <section className="py-16 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4 text-center">
+      <section className="py-12 sm:py-16 bg-white border-t border-gray-100">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mb-10">
             Trusted By Global Leaders
           </p>
@@ -249,13 +249,13 @@ const Home: React.FC = () => {
       </section>
 
       {/* Promo Banners */}
-      <section className="py-20 bg-white relative z-10">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <section className="py-12 sm:py-16 lg:py-20 bg-white relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             {BANNERS.map((banner) => (
               <div
                 key={banner.id}
-                className="relative rounded-2xl overflow-hidden group h-80 lg:h-96 shadow-lg"
+                className="relative rounded-xl sm:rounded-2xl overflow-hidden group h-64 sm:h-72 md:h-80 lg:h-96 shadow-lg"
               >
                 <div className="absolute inset-0 bg-gray-900">
                   <img
@@ -265,22 +265,22 @@ const Home: React.FC = () => {
                   />
                 </div>
                 <div
-                  className={`absolute inset-0 p-8 flex flex-col justify-end items-start bg-gradient-to-t from-black/80 via-transparent to-transparent`}
+                  className={`absolute inset-0 p-4 sm:p-6 lg:p-8 flex flex-col justify-end items-start bg-gradient-to-t from-black/80 via-transparent to-transparent`}
                 >
-                  <h4 className="text-xs font-bold uppercase tracking-widest mb-3 text-blue-400">
+                  <h4 className="text-[10px] sm:text-xs font-bold uppercase tracking-widest mb-2 sm:mb-3 text-blue-400">
                     {banner.subtitle}
                   </h4>
-                  <h3 className="text-2xl lg:text-3xl font-extrabold text-white mb-6 leading-tight max-w-[250px]">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl xl:text-3xl font-extrabold text-white mb-3 sm:mb-4 lg:mb-6 leading-tight max-w-[200px] sm:max-w-[250px]">
                     {banner.title}
                   </h3>
                   <Link
                     to="/shop"
-                    className="bg-white/10 backdrop-blur-md border border-white/30 text-white px-6 py-2.5 rounded-full text-sm font-bold hover:bg-white hover:text-gray-900 transition-all flex items-center gap-2 group/btn"
+                    className="bg-white/10 backdrop-blur-md border border-white/30 text-white px-4 sm:px-6 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-bold hover:bg-white hover:text-gray-900 transition-all flex items-center gap-2 group/btn"
                   >
                     {banner.buttonText}{" "}
                     <ArrowUpRight
-                      size={16}
-                      className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform"
+                      size={14}
+                      className="sm:w-4 sm:h-4 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform"
                     />
                   </Link>
                 </div>
@@ -291,28 +291,33 @@ const Home: React.FC = () => {
       </section>
 
       {/* Testimonials */}
-      <section className="py-20 bg-blue-50 relative overflow-hidden">
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-extrabold text-gray-900 mb-4">
+      <section className="py-12 sm:py-16 lg:py-20 bg-blue-50 relative overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-10 sm:mb-12 lg:mb-16">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-3 sm:mb-4">
               What Our Clients Say
             </h2>
-            <p className="text-gray-500">
+            <p className="text-sm sm:text-base text-gray-500">
               Trusted by over 5000+ businesses across Pakistan.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {TESTIMONIALS.map((t) => (
               <div
                 key={t.id}
-                className="bg-white p-8 rounded-2xl shadow-sm border border-gray-100 relative"
+                className="bg-white p-5 sm:p-6 lg:p-8 rounded-xl sm:rounded-2xl shadow-sm border border-gray-100 relative"
               >
-                <div className="flex gap-1 text-yellow-400 mb-4">
+                <div className="flex gap-0.5 sm:gap-1 text-yellow-400 mb-3 sm:mb-4">
                   {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={16} fill="currentColor" />
+                    <Star
+                      key={i}
+                      size={14}
+                      className="sm:w-4 sm:h-4"
+                      fill="currentColor"
+                    />
                   ))}
                 </div>
-                <p className="text-gray-600 mb-6 italic leading-relaxed">
+                <p className="text-gray-600 mb-4 sm:mb-6 italic leading-relaxed text-sm sm:text-base">
                   "{t.content}"
                 </p>
                 <div className="flex items-center gap-4">
@@ -359,18 +364,18 @@ const Home: React.FC = () => {
       </div>
 
       {/* Large CTA */}
-      <section className="py-24 bg-gray-900 text-white relative overflow-hidden z-10">
+      <section className="py-16 sm:py-20 lg:py-24 bg-gray-900 text-white relative overflow-hidden z-10">
         <div className="absolute top-0 right-0 w-1/2 h-full bg-blue-600/10 skew-x-12 transform origin-bottom translate-x-20"></div>
-        <div className="container mx-auto px-4 relative z-10 text-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
           <div className="max-w-4xl mx-auto">
-            <h2 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight leading-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 sm:mb-6 tracking-tight leading-tight">
               Ready to Upgrade Your Office Print Fleet?
             </h2>
-            <p className="text-gray-400 mb-10 text-lg md:text-xl max-w-2xl mx-auto">
+            <p className="text-gray-400 mb-6 sm:mb-8 lg:mb-10 text-base sm:text-lg lg:text-xl max-w-2xl mx-auto">
               Get a customized quote for your business. We offer lease, rental,
               and purchase options for all major brands.
             </p>
-            <div className="flex flex-col sm:flex-row justify-center gap-4">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
               <Link
                 to="/contact"
                 className="bg-blue-600 text-white px-10 py-4 rounded-lg font-bold shadow-lg shadow-blue-900/50 hover:bg-blue-500 transition-all hover:-translate-y-1 inline-flex items-center justify-center"

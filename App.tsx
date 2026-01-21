@@ -157,11 +157,13 @@ const PublicLayout = () => {
       {/* Get Quote Floating Button - Above WhatsApp */}
       <button
         onClick={() => setIsQuoteModalOpen(true)}
-        className="fixed bottom-32 right-8 z-40 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-5 py-4 rounded-full shadow-2xl hover:shadow-blue-500/30 transition-all transform hover:-translate-y-1 hover:scale-110 flex items-center justify-center gap-2 group"
+        className="fixed bottom-24 sm:bottom-28 lg:bottom-32 right-4 sm:right-6 lg:right-8 z-40 bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 sm:px-4 lg:px-5 py-3 sm:py-3.5 lg:py-4 rounded-full shadow-2xl hover:shadow-blue-500/30 transition-all transform hover:-translate-y-1 hover:scale-110 flex items-center justify-center gap-2 group"
         title="Request a Quote"
       >
-        <FileText size={24} />
-        <span className="font-bold text-sm hidden md:inline">Get Quote</span>
+        <FileText size={20} className="sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+        <span className="font-bold text-xs sm:text-sm hidden md:inline">
+          Get Quote
+        </span>
         <span className="absolute right-full mr-3 bg-white text-gray-900 text-xs font-bold px-3 py-1.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none md:hidden">
           Request Quote
         </span>
@@ -172,10 +174,13 @@ const PublicLayout = () => {
         href="https://wa.me/923175223143"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-8 right-8 z-40 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:shadow-green-500/30 transition-all transform hover:-translate-y-1 hover:scale-110 flex items-center justify-center group"
+        className="fixed bottom-4 sm:bottom-6 lg:bottom-8 right-4 sm:right-6 lg:right-8 z-40 bg-[#25D366] text-white p-3 sm:p-3.5 lg:p-4 rounded-full shadow-2xl hover:shadow-green-500/30 transition-all transform hover:-translate-y-1 hover:scale-110 flex items-center justify-center group"
         title="Chat on WhatsApp"
       >
-        <MessageCircle size={28} className="fill-current" />
+        <MessageCircle
+          size={24}
+          className="sm:w-6 sm:h-6 lg:w-7 lg:h-7 fill-current"
+        />
         <span className="absolute right-full mr-3 bg-white text-gray-900 text-xs font-bold px-3 py-1.5 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
           Chat with us
         </span>
