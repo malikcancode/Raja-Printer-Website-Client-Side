@@ -206,29 +206,29 @@ export const BRANDS = [
 export const TESTIMONIALS = [
   {
     id: 1,
-    name: "Ahmed Khan",
-    role: "IT Manager, TechCorp",
+    name: "Muhammad Ahsan",
+    role: "IT Manager, Rawalpindi",
     content:
-      "Raja Business Systems provided us with an excellent fleet of printers. Their after-sales support is unmatched in Rawalpindi.",
+      "Raja Business Systems ne humein high-quality printers provide kiye. Inki after-sales service bohat hi reliable hai aur response time excellent hai.",
     image:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaRdGRk_nQR-Ij3uKndEEVN76bjnNNN1Ztw&s",
   },
   {
     id: 2,
-    name: "Sarah Ahmed",
-    role: "Principal, Beacon School",
+    name: "Sara Javed",
+    role: "Principal, Private School",
     content:
-      "We needed reliable copiers for our exam season. The team guided us perfectly and the refurbished machines work like new.",
+      "Exam season ke liye humein copiers chahiye thay aur inki team ne humein bilkul sahi guidance di. Refurbished machines bilkul new jaisi performance de rahi hain.",
     image:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=100",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaRdGRk_nQR-Ij3uKndEEVN76bjnNNN1Ztw&s",
   },
   {
     id: 3,
-    name: "Usman Malik",
-    role: "CEO, Malik Enterprises",
+    name: "Usman Farooq",
+    role: "Business Owner",
     content:
-      "Genuine toners delivered to our doorstep within 24 hours. Highly recommended for business supplies.",
+      "Original toner cartridges time par deliver hue aur quality top-notch thi. Office supplies ke liye ek trusted name hai.",
     image:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=100",
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaRdGRk_nQR-Ij3uKndEEVN76bjnNNN1Ztw&s",
   },
 ];

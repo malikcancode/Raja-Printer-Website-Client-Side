@@ -330,9 +330,9 @@ const Home: React.FC = () => {
                     <h4 className="font-bold text-gray-900 text-sm">
                       {t.name}
                     </h4>
-                    <p className="text-xs text-blue-600 font-medium">
+                    {/* <p className="text-xs text-blue-600 font-medium">
                       {t.role}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               </div>
