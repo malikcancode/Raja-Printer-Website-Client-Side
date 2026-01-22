@@ -208,13 +208,13 @@ const Header: React.FC = () => {
               >
                 <Menu size={24} />
               </button>
-              <Link to="/" className="flex items-center gap-3 group">
-                <div className="w-10 h-10 bg-blue-600 text-white flex items-center justify-center rounded-lg shadow-blue-200 shadow-lg group-hover:scale-105 transition-transform">
-                  <Printer size={24} />
+              <Link to="/" className="flex items-center group">
+                <div className="w-24 h-12  flex items-center justify-center group-hover:scale-105 transition-transform">
+                  <img src="/PNG.png" alt="" />
                 </div>
                 <div className="flex flex-col">
                   <span className="font-extrabold text-2xl tracking-tighter text-gray-900 leading-none group-hover:text-blue-600 transition-colors">
-                    CopyTech
+                    CopyTech.pk
                   </span>
                 </div>
               </Link>
