@@ -209,7 +209,7 @@ export const TESTIMONIALS = [
     name: "Muhammad Ahsan",
     role: "IT Manager, Rawalpindi",
     content:
-      "Raja Business Systems ne humein high-quality printers provide kiye. Inki after-sales service bohat hi reliable hai aur response time excellent hai.",
+      "CopyTech ne humein high-quality printers provide kiye. Inki after-sales service bohat hi reliable hai aur response time excellent hai.",
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaRdGRk_nQR-Ij3uKndEEVN76bjnNNN1Ztw&s",
   },
@@ -218,7 +218,7 @@ export const TESTIMONIALS = [
     name: "Sara Javed",
     role: "Principal, Private School",
     content:
-      "Exam season ke liye humein copiers chahiye thay aur inki team ne humein bilkul sahi guidance di. Refurbished machines bilkul new jaisi performance de rahi hain.",
+      "Exam season ke liye humein copiers chahiye thay aur CopyTech ki team ne bilkul sahi guidance di. Refurbished machines bilkul new jaisi performance de rahi hain.",
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaRdGRk_nQR-Ij3uKndEEVN76bjnNNN1Ztw&s",
   },
@@ -227,7 +227,7 @@ export const TESTIMONIALS = [
     name: "Usman Farooq",
     role: "Business Owner",
     content:
-      "Original toner cartridges time par deliver hue aur quality top-notch thi. Office supplies ke liye ek trusted name hai.",
+      "CopyTech se original toner cartridges time par deliver hue aur quality top-notch thi. Office supplies ke liye ek trusted name hai.",
     image:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRvaRdGRk_nQR-Ij3uKndEEVN76bjnNNN1Ztw&s",
   },
