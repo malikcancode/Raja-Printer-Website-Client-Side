@@ -124,18 +124,16 @@ const Contact: React.FC = () => {
                     <p className="text-sm font-bold text-gray-500 uppercase mb-1">
                       Office
                     </p>
-                    <p className="text-lg font-bold text-gray-900">
-                      Raja Business Systems
-                    </p>
+                    <p className="text-lg font-bold text-gray-900">CopyTech</p>
                     <p className="text-sm text-gray-500">
-                      Saddar, Rawalpindi, Pakistan
+                      G 1 & 2, Souvenir Arcade, High court Road, Near Gulraiz
+                      gate 2, Rawalpindi{" "}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Map Placeholder */}
+            {/* Map Placeholder
             <div className="h-64 bg-gray-100 rounded-2xl overflow-hidden relative">
               <img
                 src="https://images.unsplash.com/photo-1524661135-423995f22d0b?auto=format&fit=crop&q=80&w=1000"
@@ -148,7 +146,7 @@ const Contact: React.FC = () => {
                   Maps
                 </button>
               </div>
-            </div>
+            </div> */}
           </div>
 
           {/* Contact Form */}

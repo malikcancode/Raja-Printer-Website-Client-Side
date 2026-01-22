@@ -7,6 +7,7 @@ import {
   Navigate,
   Outlet,
 } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Loader from "./components/Loader";
@@ -22,6 +23,8 @@ import {
   Truck,
   UserCog,
   FileText,
+  Menu,
+  X,
 } from "lucide-react";
 
 // Lazy load page components
@@ -76,6 +79,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({
 const AdminLayout = () => {
   const { user, logout } = useShop();
   const location = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   if (!user || !user.isAdmin) {
     return <Navigate to="/login" replace />;
@@ -90,21 +94,61 @@ const AdminLayout = () => {
     { path: "/admin/shipping-zones", label: "Shipping Zones", icon: Truck },
   ];
 
+  const handleNavClick = () => {
+    setIsSidebarOpen(false);
+  };
+
+  const handleLogout = () => {
+    setIsSidebarOpen(false);
+    logout();
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      {/* Overlay for mobile */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-white flex-col hidden lg:flex fixed h-full">
-        <div className="p-6 border-b border-gray-800">
+      <motion.aside
+        initial={false}
+        animate={{
+          x: isSidebarOpen ? 0 : "-100%",
+        }}
+        transition={{
+          duration: 0.3,
+          ease: "easeInOut",
+        }}
+        className="w-64 bg-gray-900 text-white flex flex-col fixed h-full z-40 lg:relative lg:translate-x-0"
+      >
+        {/* Close Button for Mobile */}
+        <div className="flex items-center justify-between p-6 border-b border-gray-800">
           <span className="font-bold text-xl">COPYTECH ADMIN</span>
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden text-gray-400 hover:text-white transition-colors"
+            aria-label="Close sidebar"
+          >
+            <X size={24} />
+          </button>
         </div>
+
         <nav className="flex-1 p-4 space-y-2">
           {navItems.map((item) => (
             <div key={item.path}>
-              {/* Use a div wrapper to use standard anchor navigation if Link causes issues inside context logic, 
-                    but here Router Link is fine. Using standard Link. 
-                */}
               <a
                 href={`#${item.path}`}
+                onClick={handleNavClick}
                 className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                   location.pathname === item.path
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-900/50"
@@ -117,20 +161,35 @@ const AdminLayout = () => {
             </div>
           ))}
         </nav>
+
         <div className="p-4 border-t border-gray-800">
           <button
-            onClick={logout}
+            onClick={handleLogout}
             className="flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-gray-800 hover:text-red-300 rounded-lg w-full transition-colors"
           >
             <LogOut size={20} />
             <span className="font-medium">Sign Out</span>
           </button>
         </div>
-      </aside>
+      </motion.aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 p-8">
-        <Outlet />
+      <main className="flex-1 w-full">
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden p-4 border-b border-gray-200 bg-white flex items-center justify-between sticky top-0 z-20">
+          <h1 className="font-bold text-lg text-gray-900">COPYTECH ADMIN</h1>
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="text-gray-900 hover:text-gray-700 transition-colors"
+            aria-label="Open sidebar"
+          >
+            <Menu size={24} />
+          </button>
+        </div>
+
+        <div className="p-4 lg:p-8">
+          <Outlet />
+        </div>
       </main>
     </div>
   );
