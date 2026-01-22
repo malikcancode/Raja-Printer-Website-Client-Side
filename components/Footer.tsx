@@ -60,9 +60,9 @@ const Footer: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pb-12 border-b border-gray-800">
           {/* Brand */}
           <div className="lg:col-span-4 space-y-6">
-            <Link to="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-600 text-white flex items-center justify-center rounded-lg">
-                <Printer size={24} />
+            <Link to="/" className="flex items-center">
+              <div className="w-24 h-12 flex items-center justify-center">
+                <img src="/PNG.png" alt="" />
               </div>
               <div className="flex flex-col">
                 <span className="font-extrabold text-2xl tracking-tighter text-white leading-none">
