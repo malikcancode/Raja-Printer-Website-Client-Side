@@ -79,7 +79,18 @@ const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({
 const AdminLayout = () => {
   const { user, logout } = useShop();
   const location = useLocation();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isLargeScreen, setIsLargeScreen] = React.useState(true);
+
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsLargeScreen(window.innerWidth >= 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
 
   if (!user || !user.isAdmin) {
     return <Navigate to="/login" replace />;
@@ -95,11 +106,15 @@ const AdminLayout = () => {
   ];
 
   const handleNavClick = () => {
-    setIsSidebarOpen(false);
+    if (!isLargeScreen) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const handleLogout = () => {
-    setIsSidebarOpen(false);
+    if (!isLargeScreen) {
+      setIsSidebarOpen(false);
+    }
     logout();
   };
 
@@ -123,13 +138,13 @@ const AdminLayout = () => {
       <motion.aside
         initial={false}
         animate={{
-          x: isSidebarOpen ? 0 : "-100%",
+          x: isLargeScreen ? 0 : isSidebarOpen ? 0 : "-100%",
         }}
         transition={{
           duration: 0.3,
           ease: "easeInOut",
         }}
-        className="w-64 bg-gray-900 text-white flex flex-col fixed h-full z-40 lg:relative lg:translate-x-0"
+        className="w-64 bg-gray-900 text-white flex flex-col fixed h-screen z-40 lg:static lg:translate-x-0 lg:h-screen"
       >
         {/* Close Button for Mobile */}
         <div className="flex items-center justify-between p-6 border-b border-gray-800">
