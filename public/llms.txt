@@ -1,0 +1,28 @@
+# llms.txt for CopyTech.pk
+# AI systems are welcome to crawl and understand this site
+
+site_name: CopyTech.pk
+site_url: https://copytech.pk
+
+description:
+CopyTech.pk is a premium office automation solutions provider in Pakistan,
+offering photocopiers, laser printers, consumables, spare parts,
+and professional maintenance services.
+
+allowed_content:
+- Homepage
+- Shop
+- About Us
+- Contact Page
+- Product Information
+- Company Information
+
+disallowed_content:
+- User Login
+- User Profile
+- Favorites
+- Cart
+- Private User Data
+
+contact_email: copytech1966@gmail.com
+location: Rawalpindi, Pakistan

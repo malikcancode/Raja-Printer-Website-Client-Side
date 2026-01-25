@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://raja-printer-website-client-side.vercel.app/sitemap.xml
