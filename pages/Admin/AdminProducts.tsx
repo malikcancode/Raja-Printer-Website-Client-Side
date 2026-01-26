@@ -52,7 +52,6 @@ const AdminProducts: React.FC = () => {
     [],
   );
 
-  // Fetch products on component mount
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -112,7 +111,6 @@ const AdminProducts: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
     if (!formData.name || !formData.price) return;
     if (uploadMethod === "file" && !selectedFile && !editingProduct) {
       toast.error("Please select an image file");
