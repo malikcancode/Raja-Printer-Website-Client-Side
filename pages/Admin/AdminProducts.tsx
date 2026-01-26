@@ -31,6 +31,7 @@ const AdminProducts: React.FC = () => {
   }>({ isOpen: false, productId: "", productName: "" });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isCreatingNewCategory, setIsCreatingNewCategory] = useState(false);
 
   const initialFormState: Partial<Product> = {
     name: "",
@@ -83,6 +84,7 @@ const AdminProducts: React.FC = () => {
       setImagePreview(product.image);
       setUploadMethod("url");
       setSpecifications(product.specifications || []);
+      setIsCreatingNewCategory(false);
     } else {
       setEditingProduct(null);
       setFormData(initialFormState);
@@ -90,6 +92,7 @@ const AdminProducts: React.FC = () => {
       setSelectedFile(null);
       setUploadMethod("file");
       setSpecifications([]);
+      setIsCreatingNewCategory(false);
     }
     setIsModalOpen(true);
   };
@@ -508,26 +511,67 @@ const AdminProducts: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-1">
-                  Category
+                  Category *
                 </label>
-                <input
-                  type="text"
-                  list="category-suggestions"
-                  required
-                  value={formData.category}
-                  onChange={(e) =>
-                    setFormData({ ...formData, category: e.target.value })
-                  }
-                  placeholder="Type or select a category"
-                  className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
-                />
-                <datalist id="category-suggestions">
-                  {existingCategories.map((cat, index) => (
-                    <option key={index} value={cat} />
-                  ))}
-                </datalist>
-                <p className="text-xs text-gray-500 mt-1">
-                  Type a new category or select from existing ones
+                <div className="space-y-3">
+                  <select
+                    required
+                    value={
+                      isCreatingNewCategory ? "create-new" : formData.category
+                    }
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (value === "create-new") {
+                        setIsCreatingNewCategory(true);
+                        setFormData({ ...formData, category: "" });
+                      } else {
+                        setIsCreatingNewCategory(false);
+                        setFormData({ ...formData, category: value });
+                      }
+                    }}
+                    className="w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                  >
+                    <option value="">-- Select a Category --</option>
+                    {existingCategories.length > 0 && (
+                      <>
+                        {existingCategories.map((cat) => (
+                          <option key={cat} value={cat}>
+                            {cat}
+                          </option>
+                        ))}
+                        <option value="create-new" disabled>
+                          ─────────────────────
+                        </option>
+                      </>
+                    )}
+                    <option value="create-new">+ Create New Category</option>
+                  </select>
+
+                  {isCreatingNewCategory && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                      <p className="text-xs font-medium text-blue-900 mb-2">
+                        New Category:
+                      </p>
+                      <input
+                        type="text"
+                        autoFocus
+                        value={formData.category}
+                        onChange={(e) =>
+                          setFormData({
+                            ...formData,
+                            category: e.target.value,
+                          })
+                        }
+                        placeholder="Enter new category name"
+                        className="w-full px-3 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm"
+                      />
+                    </div>
+                  )}
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  {existingCategories.length > 0
+                    ? "Select from existing categories or create a new one"
+                    : "No categories yet. Create the first one!"}
                 </p>
               </div>
 

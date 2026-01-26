@@ -8,7 +8,7 @@ import {
   ChevronRight,
   Search,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { Product } from "../types";
 import { useShop } from "../context/ShopContext";
 import { productAPI } from "../apis/product";
@@ -179,6 +179,7 @@ const HighlightMatch: React.FC<{ text: string; highlight: string }> = ({
 
 const Shop: React.FC = () => {
   const { products: contextProducts, productsLoading } = useShop();
+  const [searchParams] = useSearchParams();
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -194,6 +195,15 @@ const Shop: React.FC = () => {
   const [isSorting, setIsSorting] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const itemsPerPage = 9;
+
+  // Read category from URL query parameter on component mount
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      setSelectedCategories([decodeURIComponent(categoryParam)]);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
 
   // Use sorted products if available, otherwise use context products
   const allProducts = useMemo(() => {
